@@ -1,6 +1,8 @@
 package routes
 
 import (
+	"project/controllers/users"
+
 	"github.com/labstack/echo/v4"
 )
 
@@ -8,13 +10,15 @@ func NewRoute() *echo.Echo {
 
 	e := echo.New()
 	eTest := e.Group("test/")
-	eTest.GET("users", getUser)
-	eTest.POST("users/register", userRegist)
-	eTest.GET("users/:userId", userDetail)
-	eTest.POST("users/login", userLogin)
-	eTest.PUT("users/update", updateUser)
-	eTest.DELETE("users/delete", deleteUser)
+	eTest.GET("users", users.GetUser)
+	eTest.POST("users/register", users.UserRegist)
+	eTest.GET("users/:userId", users.UserDetail)
+	eTest.POST("users/login", users.UserLogin)
+	eTest.PUT("users/update", users.UpdateUser)
+	eTest.DELETE("users/delete", users.DeleteUser)
+
 	// eTest1 := e.Group("movies/")
-	// eTest1.GET("movies", getMovie)
+	// eTest1.POST("create", createMovie)
+	// eTest1.POST("createCategory", categoryRegist)
 	return e
 }
