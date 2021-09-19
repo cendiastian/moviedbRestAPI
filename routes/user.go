@@ -41,7 +41,7 @@ func userRegist(c echo.Context) error {
 	userDB.Email = userRegister.Email
 
 	result := config.DB.Create(&userDB)
-	if result != nil {
+	if result.Error == nil {
 		return c.JSON(http.StatusOK, response.Response{
 			Code:    http.StatusOK,
 			Message: "Berhasil register",
@@ -63,7 +63,7 @@ func getUser(c echo.Context) error {
 		if result.Error != gorm.ErrRecordNotFound {
 			return c.JSON(http.StatusInternalServerError, response.Response{
 				Code:    http.StatusInternalServerError,
-				Message: "Error ketika input mendapatkan data user dari config.DB",
+				Message: "Error ketika input mendapatkan data user dari DB",
 				Data:    nil,
 			})
 		}
@@ -77,57 +77,115 @@ func getUser(c echo.Context) error {
 }
 
 func userDetail(c echo.Context) error {
-	userId, err := strconv.Atoi(c.Param("userId"))
-	if err != nil {
+	userId, _ := strconv.Atoi(c.Param("userId"))
+	var userDB user.User
+
+	result := config.DB.Model(&userDB).Where("Id = ?", userId).Find(&userDB)
+	if result.Error == nil {
+		if userDB.ID == 0 {
+			return c.JSON(http.StatusInternalServerError, response.Response{
+				Code:    http.StatusInternalServerError,
+				Message: "User ID tidak ada",
+				Data:    nil,
+			})
+		}
+
+		return c.JSON(http.StatusOK, response.Response{
+			Code:    http.StatusOK,
+			Message: "Berhasil",
+			Data:    userDB,
+		})
+	}
+	return c.JSON(http.StatusInternalServerError, response.Response{
+		Code:    http.StatusInternalServerError,
+		Message: "Gagal konversi userId",
+		Data:    nil,
+	})
+}
+
+func userLogin(c echo.Context) error {
+	userLogin := user.UserLogin{}
+	c.Bind(&userLogin)
+	var userDB user.User
+	if userLogin.Email == "" {
+		return c.JSON(http.StatusBadRequest, response.Response{
+			Code:    http.StatusBadRequest,
+			Message: "Mohon isi Email",
+			Data:    nil,
+		})
+	} else if userLogin.Password == "" {
+		return c.JSON(http.StatusBadRequest, response.Response{
+			Code:    http.StatusBadRequest,
+			Message: "Mohon isi Password",
+			Data:    nil,
+		})
+	}
+	result := config.DB.Where("email = ? AND password = ?", userLogin.Email, userLogin.Password).Find(&userDB)
+	if result.Error != nil {
 		return c.JSON(http.StatusInternalServerError, response.Response{
 			Code:    http.StatusInternalServerError,
-			Message: "Gagal konversi userId",
+			Message: "Login gagal",
+			Data:    nil,
+		})
+	} else if userDB.ID == 0 {
+		return c.JSON(http.StatusInternalServerError, response.Response{
+			Code:    http.StatusInternalServerError,
+			Message: "Login gagal",
 			Data:    nil,
 		})
 	}
 	return c.JSON(http.StatusOK, response.Response{
 		Code:    http.StatusOK,
 		Message: "Berhasil",
-		Data:    user.User{ID: userId},
+		Data:    userDB,
+	})
+
+}
+
+func updateUser(c echo.Context) error {
+	var userUpdate user.UserUpdate
+	c.Bind(&userUpdate)
+	// var userDB user.User
+
+	result := config.DB.Model(&user.User{}).Where("id = ?", userUpdate.ID).Updates(&user.User{Name: userUpdate.Name, Password: userUpdate.Password, Email: userUpdate.Email})
+	if result.Error == nil {
+		return c.JSON(http.StatusOK, response.Response{
+			Code:    http.StatusOK,
+			Message: "Berhasil",
+			Data:    userUpdate,
+		})
+
+	}
+	return c.JSON(http.StatusInternalServerError, response.Response{
+		Code:    http.StatusInternalServerError,
+		Message: "Update gagal",
+		Data:    nil,
 	})
 }
 
-// type user.UserLogin struct {
-// 	Email    string `json:"email"`
-// 	Password int    `json:"password"`
-// }
+func deleteUser(c echo.Context) error {
+	var userDelete user.UserDelete
+	c.Bind(&userDelete)
+	// var userDB user.User
 
-// type UserUpdate struct {
-// 	Name     string `json:"name"`
-// 	Email    string `json:"email"`
-// 	Password string `json:"password"`
-// }
-
-// func updateUser(c echo.Context) error {
-// 	// var userRegister UserRegister
-// 	var user user.User
-// 	u := new(UserUpdate)
-// 	if err := c.Bind(u); err != nil {
-// 		return err
-// 	}
-// 	// id, _ := strconv.Atoi(c.Param("id"))
-// 	user.Name = u.Name
-// 	return c.JSON(http.StatusOK, user.User)
-// }
-
-// func deleteUser(c echo.Context) error {
-// 	id, _ := strconv.Atoi(c.Param("id"))
-// 	delete(user.User, id)
-// 	return c.NoContent(http.StatusNoContent)
-// }
-
-// func userLogin(c echo.Context) error {
-// 	userLogin := user.UserLogin{}
-// 	c.Bind(&userLogin)
-
-// 	return c.JSON(http.StatusOK, response.Response{
-// 		Code:    http.StatusOK,
-// 		Message: "Berhasil",
-// 		Data:    userLogin,
-// 	})
-// }
+	result := config.DB.Delete(&user.User{}, userDelete.ID)
+	if result.Error == nil {
+		// if userDB.ID == 0 {
+		// 	return c.JSON(http.StatusInternalServerError, response.Response{
+		// 		Code:    http.StatusInternalServerError,
+		// 		Message: "Gagal menghapus user",
+		// 		Data:    nil,
+		// 	})
+		// }
+		return c.JSON(http.StatusOK, response.Response{
+			Code:    http.StatusOK,
+			Message: "Berhasil",
+			Data:    userDelete,
+		})
+	}
+	return c.JSON(http.StatusInternalServerError, response.Response{
+		Code:    http.StatusInternalServerError,
+		Message: "Gagal menghapus user",
+		Data:    nil,
+	})
+}
