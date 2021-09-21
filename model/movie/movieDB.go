@@ -17,7 +17,7 @@ type Movie struct {
 	Actors    string         `json:"Actors"`
 	Plot      string         `json:"Plot"`
 	Poster    string         `json:"Poster"`
-	ImdbId    string         `json:"imdbId" gorm:"unique"`
+	ImdbId    string         `json:"ImdbId" gorm:"unique"`
 	Type      string         `json:"Type"`
 	CreatedAt time.Time      `json:"createdAt"`
 	UpdatedAt time.Time      `json:"updatedAt"`
