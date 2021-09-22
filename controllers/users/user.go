@@ -3,11 +3,13 @@ package users
 import (
 	"net/http"
 	"project/config"
+	"project/middlewares"
 	"project/model/response"
 	"project/model/user"
 	"strconv"
 
 	// "project/routes"
+
 	"github.com/labstack/echo/v4"
 	"gorm.io/gorm"
 )
@@ -121,7 +123,8 @@ func UserLogin(c echo.Context) error {
 			Data:    nil,
 		})
 	}
-	result := config.DB.Where("email = ? AND password = ?", userLogin.Email, userLogin.Password).Find(&userDB)
+
+	result := config.DB.Where("email = ? AND password = ?", userLogin.Email, userLogin.Password).First(&userDB)
 	if result.Error != nil {
 		return c.JSON(http.StatusInternalServerError, response.Response{
 			Code:    http.StatusInternalServerError,
@@ -135,12 +138,22 @@ func UserLogin(c echo.Context) error {
 			Data:    nil,
 		})
 	}
+
+	token, err := middlewares.GenerateTokenJWT(userDB.ID)
+
+	if err != nil {
+		return c.JSON(http.StatusForbidden, response.Response{
+			Code:    http.StatusForbidden,
+			Message: "Error ketika membuat Token",
+			Data:    nil,
+		})
+	}
+
 	return c.JSON(http.StatusOK, response.Response{
 		Code:    http.StatusOK,
-		Message: "Berhasil",
-		Data:    userDB,
+		Message: "Login Berhasil! Token: " + token,
+		Data:    userLogin,
 	})
-
 }
 
 func UpdateUser(c echo.Context) error {
