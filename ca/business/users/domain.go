@@ -20,12 +20,16 @@ type Usecase interface {
 	GetAll(ctx context.Context) ([]User, error)
 	Login(ctx context.Context, User User) (User, error)
 	UserDetail(ctx context.Context, id int) (User, error)
-	// Update(ctx context.Context, ar *User) error
-	// Delete(ctx context.Context, id int64) error
+	Update(ctx context.Context, User User) (User, error)
+	Delete(ctx context.Context, User User) (User, error)
+	Register(ctx context.Context, User User) (User, error)
 }
 
 type Repository interface {
 	GetAll(ctx context.Context) ([]User, error)
 	Login(ctx context.Context, email string, password string) (User, error)
 	UserDetail(ctx context.Context, id int) (User, error)
+	Update(ctx context.Context, id int, email string, password string) (User, error)
+	Delete(ctx context.Context, id int) (User, error)
+	Register(ctx context.Context, name string, email string, password string) (User, error)
 }

@@ -22,77 +22,6 @@ func NewUserUsecase(repo Repository, timeout time.Duration) Usecase {
 	}
 }
 
-// func (a *UserUsecase) fillAuthorDetails(c context.Context, data []User) ([]User, error) {
-// 	g, ctx := errgroup.WithContext(c)
-//
-// 	// Get the author's id
-// 	mapAuthors := map[int64]domain.Author{}
-//
-// 	for _, article := range data {
-// 		mapAuthors[article.Author.ID] = domain.Author{}
-// 	}
-// 	// Using goroutine to fetch the author's detail
-// 	chanAuthor := make(chan domain.Author)
-// 	for authorID := range mapAuthors {
-// 		authorID := authorID
-// 		g.Go(func() error {
-// 			res, err := a.authorRepo.GetByID(ctx, authorID)
-// 			if err != nil {
-// 				return err
-// 			}
-// 			chanAuthor <- res
-// 			return nil
-// 		})
-// 	}
-//
-// 	go func() {
-// 		err := g.Wait()
-// 		if err != nil {
-// 			logrus.Error(err)
-// 			return
-// 		}
-// 		close(chanAuthor)
-// 	}()
-//
-// 	for author := range chanAuthor {
-// 		if author != (domain.Author{}) {
-// 			mapAuthors[author.ID] = author
-// 		}
-// 	}
-//
-// 	if err := g.Wait(); err != nil {
-// 		return nil, err
-// 	}
-//
-// 	// merge the author's data
-// 	for index, item := range data {
-// 		if a, ok := mapAuthors[item.Author.ID]; ok {
-// 			data[index].Author = a
-// 		}
-// 	}
-// 	return data, nil
-// }
-//
-// func (a *UserUsecase) Fetch(c context.Context, cursor string, num int64) (res []User, nextCursor string, err error) {
-// 	if num == 0 {
-// 		num = 10
-// 	}
-//
-// 	ctx, cancel := context.WithTimeout(c, a.contextTimeout)
-// 	defer cancel()
-//
-// 	res, nextCursor, err = a.Repo.Fetch(ctx, cursor, num)
-// 	if err != nil {
-// 		return nil, "", err
-// 	}
-//
-// 	res, err = a.fillAuthorDetails(ctx, res)
-// 	if err != nil {
-// 		nextCursor = ""
-// 	}
-// 	return
-// }
-
 func (uc *UserUsecase) GetAll(c context.Context) ([]User, error) {
 	ctx, error := context.WithTimeout(c, uc.contextTimeout)
 	defer error()
@@ -147,4 +76,75 @@ func (uc *UserUsecase) UserDetail(c context.Context, id int) (res User, err erro
 	}
 
 	return user, nil
+
+}
+func (uc *UserUsecase) Delete(c context.Context, domain User) (User, error) {
+
+	if domain.Id == 0 {
+		return User{}, errors.New("mohon isi ID")
+	}
+
+	ctx, error := context.WithTimeout(c, uc.contextTimeout)
+	defer error()
+
+	exist, err := uc.Repo.UserDetail(ctx, domain.Id)
+	if err != nil {
+		return User{}, err
+	}
+	if exist == (User{}) {
+		return User{}, err
+	}
+
+	user, err := uc.Repo.Delete(ctx, domain.Id)
+	if err != nil {
+		return User{}, err
+	}
+
+	return user, nil
+}
+
+func (uc *UserUsecase) Update(c context.Context, domain User) (User, error) {
+
+	if domain.Id == 0 {
+		return User{}, errors.New("mohon isi ID")
+	}
+
+	ctx, error := context.WithTimeout(c, uc.contextTimeout)
+	defer error()
+
+	domain.UpdatedAt = time.Now()
+
+	user, err := uc.Repo.Update(ctx, domain.Id, domain.Email, domain.Password)
+	if err != nil {
+		return User{}, err
+	}
+
+	return user, nil
+
+}
+
+func (uc *UserUsecase) Register(c context.Context, domain User) (User, error) {
+
+	if domain.Name == "" {
+		return User{}, errors.New("mohon isi Nama")
+	}
+	if domain.Email == "" {
+		return User{}, errors.New("mohon isi Email")
+	}
+	if domain.Password == "" {
+		return User{}, errors.New("mohon isi Password")
+	}
+
+	ctx, error := context.WithTimeout(c, uc.contextTimeout)
+	defer error()
+
+	domain.UpdatedAt = time.Now()
+
+	user, err := uc.Repo.Register(ctx, domain.Name, domain.Email, domain.Password)
+	if err != nil {
+		return User{}, err
+	}
+
+	return user, nil
+
 }
