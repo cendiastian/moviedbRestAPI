@@ -72,12 +72,12 @@ func (UserController UserController) Delete(c echo.Context) error {
 	c.Bind(&userDelete)
 
 	ctx := c.Request().Context()
-	user, err := UserController.UserUC.Delete(ctx, userDelete.ToDomain())
+	err := UserController.UserUC.Delete(ctx, userDelete.ToDomain())
 	if err != nil {
 		return controllers.NewErrorResponse(c, http.StatusInternalServerError, err)
 	}
 
-	return controllers.NewSuccesResponse(c, responses.FromDomain(user))
+	return controllers.UpdateSuccesResponse(c, "Berhasil Menghapus User")
 }
 
 func (UserController UserController) Update(c echo.Context) error {
@@ -86,12 +86,12 @@ func (UserController UserController) Update(c echo.Context) error {
 	c.Bind(&userUpdate)
 
 	ctx := c.Request().Context()
-	user, err := UserController.UserUC.Update(ctx, userUpdate.ToDomain())
+	err := UserController.UserUC.Update(ctx, userUpdate.ToDomain())
 	if err != nil {
 		return controllers.NewErrorResponse(c, http.StatusInternalServerError, err)
 	}
 
-	return controllers.NewSuccesResponse(c, responses.FromDomain(user))
+	return controllers.UpdateSuccesResponse(c, "Berhasil Merubah Data User")
 }
 
 func (UserController UserController) Register(c echo.Context) error {

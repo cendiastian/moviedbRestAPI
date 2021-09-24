@@ -45,30 +45,33 @@ func (rep *MysqlUserRepository) UserDetail(ctx context.Context, id int) (users.U
 	return user.ToDomain(), nil
 }
 
-func (rep *MysqlUserRepository) Delete(ctx context.Context, id int) (users.User, error) {
+func (rep *MysqlUserRepository) Delete(ctx context.Context, id int) error {
 	var user Users
 	result := rep.Connect.Delete(&user, "id= ?", id)
 
 	if result.Error != nil {
-		return users.User{}, result.Error
+		return result.Error
 	}
 
-	return user.ToDomain(), nil
+	return nil
 }
 
-func (rep *MysqlUserRepository) Update(ctx context.Context, id int, email string, password string) (users.User, error) {
-	var user Users
+func (rep *MysqlUserRepository) Update(ctx context.Context, id int, email string, password string) error {
 	result := rep.Connect.Where("id = ?", id).Updates(&Users{Email: email, Password: password})
 
 	if result.Error != nil {
-		return users.User{}, result.Error
+		return result.Error
 	}
 
-	return user.ToDomain(), nil
+	return nil
 }
 
 func (rep *MysqlUserRepository) Register(ctx context.Context, name string, email string, password string) (users.User, error) {
-	var user Users
+	user := Users{
+		Name:     name,
+		Email:    email,
+		Password: password,
+	}
 	result := rep.Connect.Create(&user)
 
 	if result.Error != nil {

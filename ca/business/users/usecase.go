@@ -4,7 +4,6 @@ import (
 	"context"
 	"errors"
 	"project/ca/app/middlewares"
-	"project/ca/helpers/encrypt"
 	"time"
 )
 
@@ -46,7 +45,7 @@ func (uc *UserUsecase) Login(ctx context.Context, domain User) (User, error) {
 	}
 
 	var err error
-	domain.Password, err = encrypt.Hash(domain.Password)
+	// domain.Password, err = encrypt.Hash(domain.Password)
 
 	// user, err := uc.Repo.Login(ctx, domain.Email, domain.Password)
 	if err != nil {
@@ -58,7 +57,7 @@ func (uc *UserUsecase) Login(ctx context.Context, domain User) (User, error) {
 		return User{}, err
 	}
 
-	user.Token, err = uc.ConfigJWT.GenerateToken(user.Id)
+	// user.Token, err = uc.ConfigJWT.GenerateToken(user.Id)
 	if err != nil {
 		return User{}, err
 	}
@@ -78,10 +77,10 @@ func (uc *UserUsecase) UserDetail(c context.Context, id int) (res User, err erro
 	return user, nil
 
 }
-func (uc *UserUsecase) Delete(c context.Context, domain User) (User, error) {
+func (uc *UserUsecase) Delete(c context.Context, domain User) (err error) {
 
 	if domain.Id == 0 {
-		return User{}, errors.New("mohon isi ID")
+		return errors.New("mohon isi ID")
 	}
 
 	ctx, error := context.WithTimeout(c, uc.contextTimeout)
@@ -89,24 +88,24 @@ func (uc *UserUsecase) Delete(c context.Context, domain User) (User, error) {
 
 	exist, err := uc.Repo.UserDetail(ctx, domain.Id)
 	if err != nil {
-		return User{}, err
+		return err
 	}
 	if exist == (User{}) {
-		return User{}, err
+		return err
 	}
 
-	user, err := uc.Repo.Delete(ctx, domain.Id)
+	err = uc.Repo.Delete(ctx, domain.Id)
 	if err != nil {
-		return User{}, err
+		return err
 	}
 
-	return user, nil
+	return nil
 }
 
-func (uc *UserUsecase) Update(c context.Context, domain User) (User, error) {
+func (uc *UserUsecase) Update(c context.Context, domain User) (err error) {
 
 	if domain.Id == 0 {
-		return User{}, errors.New("mohon isi ID")
+		return errors.New("mohon isi ID")
 	}
 
 	ctx, error := context.WithTimeout(c, uc.contextTimeout)
@@ -114,12 +113,12 @@ func (uc *UserUsecase) Update(c context.Context, domain User) (User, error) {
 
 	domain.UpdatedAt = time.Now()
 
-	user, err := uc.Repo.Update(ctx, domain.Id, domain.Email, domain.Password)
+	err = uc.Repo.Update(ctx, domain.Id, domain.Email, domain.Password)
 	if err != nil {
-		return User{}, err
+		return err
 	}
 
-	return user, nil
+	return nil
 
 }
 
