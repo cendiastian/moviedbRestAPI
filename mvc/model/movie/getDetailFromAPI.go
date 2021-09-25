@@ -7,4 +7,5 @@ type GetDetail struct {
 	Writer   string `json:"Writer"`
 	Actors   string `json:"Actors"`
 	Plot     string `json:"Plot"`
+	ImdbId   string `json:"imdbID"`
 }

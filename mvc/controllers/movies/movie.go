@@ -96,7 +96,6 @@ func CreateMovie(c echo.Context) error {
 
 func GetDetailFromAPI(c echo.Context) error {
 	title := (c.Param("title"))
-
 	var GetDetail movie.GetDetail
 
 	req, _ := http.NewRequest("GET", "http://www.omdbapi.com/?apikey=8b8a25e8&", nil)
@@ -129,15 +128,15 @@ func GetDetailFromAPI(c echo.Context) error {
 		fmt.Println(res)
 		// if errors.Is(res.Error, gorm.ErrRecordNotFound) {
 		if res.RowsAffected == 0 {
-			config.DB.Raw("SELECT id FROM `categories` ORDER BY `categories`.`id` DESC").Scan(&categoryDB)
+			// config.DB.Raw("SELECT id FROM `categories` ORDER BY `categories`.`id` DESC").Scan(&categoryDB)
 			categoryDB = movie.Category{
 				Name: v,
-				ID:   +1,
+				// ID:   +1,
 			}
 			// categoryDB.Name = v
 			// categoryDB.ID += 1
 			fmt.Println(categoryDB)
-			config.DB.Create(categoryDB)
+			config.DB.Create(&categoryDB)
 			movieDB.Genre = append(movieDB.Genre, categoryDB)
 		} else {
 			fmt.Println(categoryDB)
@@ -155,7 +154,18 @@ func GetDetailFromAPI(c echo.Context) error {
 	}
 
 	// update
-	result := config.DB.Model(&movie.Movie{}).Where("Title = ?", GetDetail.Title).Updates(movie.Movie{Director: GetDetail.Director, Writer: GetDetail.Writer, Actors: GetDetail.Actors, Plot: GetDetail.Plot, Genre: movieDB.Genre})
+	res := config.DB.Where("Title = ?", GetDetail.Title).First(&movieDB)
+	fmt.Println(res)
+	movieDB = movie.Movie{
+		Director: GetDetail.Director,
+		Writer:   GetDetail.Writer,
+		Actors:   GetDetail.Actors,
+		Plot:     GetDetail.Plot,
+		Genre:    movieDB.Genre,
+	}
+	// movieDB.ID = config.DB.Raw("SELECT id FROM `movies` WHERE Title = ?", GetDetail.Title).Scan(&movieDB.ID)
+	// config.DB.Raw("SELECT id FROM `movies` WHERE Title = ?", GetDetail.Title).Scan(&movieDB.ID)
+	result := config.DB.Where("id = ?", movieDB.ID).Save(&movieDB)
 	if result.Error != nil {
 		return c.JSON(http.StatusInternalServerError, response.Response{
 			Code:    http.StatusInternalServerError,

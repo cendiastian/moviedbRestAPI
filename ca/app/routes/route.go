@@ -1,6 +1,7 @@
 package routes
 
 import (
+	"project/ca/controllers/movies"
 	"project/ca/controllers/users"
 
 	"github.com/labstack/echo/v4"
@@ -8,8 +9,9 @@ import (
 )
 
 type ControllerList struct {
-	JwtConfig      middleware.JWTConfig
-	UserController users.UserController
+	JwtConfig       middleware.JWTConfig
+	UserController  users.UserController
+	MovieController movies.MovieController
 }
 
 func (cl *ControllerList) RouteRegister(e *echo.Echo) {
@@ -20,4 +22,8 @@ func (cl *ControllerList) RouteRegister(e *echo.Echo) {
 	e.DELETE("users/:id", cl.UserController.Delete)
 	e.PUT("users/:id", cl.UserController.Update)
 	e.POST("users/register", cl.UserController.Register)
+
+	e.POST("movies/CreateMovie/:ImdbId", cl.MovieController.CreateMovieAPI)
+	e.GET("movies/MovieDetail/:Id", cl.MovieController.MovieDetail)
+	e.GET("movies/SearchMovie/:Title", cl.MovieController.SearchMovie)
 }

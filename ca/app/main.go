@@ -4,8 +4,12 @@ import (
 	"log"
 	_middleware "project/ca/app/middlewares"
 	"project/ca/app/routes"
+	_movieUC "project/ca/business/movies"
 	_userUC "project/ca/business/users"
+	_movieCtrl "project/ca/controllers/movies"
 	_userCtrl "project/ca/controllers/users"
+	_movieRepo "project/ca/drivers/databases/movies"
+	_moviedb "project/ca/drivers/databases/movies"
 	_userRepo "project/ca/drivers/databases/users"
 	_userdb "project/ca/drivers/databases/users"
 	_mysqlDriver "project/ca/drivers/mysql"
@@ -29,6 +33,8 @@ func init() {
 
 func DB_Migrate(db *gorm.DB) {
 	db.AutoMigrate(&_userdb.Users{})
+	db.AutoMigrate(&_moviedb.Movies{})
+	db.AutoMigrate(&_moviedb.Genres{})
 }
 
 func main() {
@@ -56,9 +62,14 @@ func main() {
 	userUC := _userUC.NewUserUsecase(userRepo, timeoutContext)
 	userCtrl := _userCtrl.NewUserController(userUC)
 
+	movieRepo := _movieRepo.NewMysqlMovieRepository(Connect)
+	movieUC := _movieUC.NewMovieUsecase(movieRepo, timeoutContext)
+	movieCtrl := _movieCtrl.NewMovieController(movieUC)
+
 	routesInit := routes.ControllerList{
-		UserController: *userCtrl,
-		JwtConfig:      configJWT.Init(),
+		UserController:  *userCtrl,
+		MovieController: *movieCtrl,
+		JwtConfig:       configJWT.Init(),
 	}
 
 	routesInit.RouteRegister(e)
