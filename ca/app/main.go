@@ -5,11 +5,19 @@ import (
 	_middleware "project/ca/app/middlewares"
 	"project/ca/app/routes"
 	_movieUC "project/ca/business/movies"
+	_subsUC "project/ca/business/subscription"
+	_payUC "project/ca/business/transactions"
 	_userUC "project/ca/business/users"
 	_movieCtrl "project/ca/controllers/movies"
+	_subsCtrl "project/ca/controllers/subscription"
+	_payCtrl "project/ca/controllers/transactions"
 	_userCtrl "project/ca/controllers/users"
 	_movieRepo "project/ca/drivers/databases/movies"
 	_moviedb "project/ca/drivers/databases/movies"
+	_subsRepo "project/ca/drivers/databases/subscription"
+	_subsdb "project/ca/drivers/databases/subscription"
+	_payRepo "project/ca/drivers/databases/transactions"
+	_paydb "project/ca/drivers/databases/transactions"
 	_userRepo "project/ca/drivers/databases/users"
 	_userdb "project/ca/drivers/databases/users"
 	_mysqlDriver "project/ca/drivers/mysql"
@@ -32,9 +40,12 @@ func init() {
 }
 
 func DB_Migrate(db *gorm.DB) {
+	db.AutoMigrate(&_paydb.Transaction{})
 	db.AutoMigrate(&_userdb.Users{})
-	db.AutoMigrate(&_moviedb.Movies{})
+	db.AutoMigrate(&_paydb.Payment_method{})
+	db.AutoMigrate(&_subsdb.SubcriptionPlan{})
 	db.AutoMigrate(&_moviedb.Genres{})
+	db.AutoMigrate(&_moviedb.Movies{})
 }
 
 func main() {
@@ -66,10 +77,20 @@ func main() {
 	movieUC := _movieUC.NewMovieUsecase(movieRepo, timeoutContext)
 	movieCtrl := _movieCtrl.NewMovieController(movieUC)
 
+	subsRepo := _subsRepo.NewMysqlsubsRepository(Connect)
+	subsUC := _subsUC.NewSubsUsecase(subsRepo, timeoutContext)
+	subsCtrl := _subsCtrl.NewSubcriptionController(subsUC)
+
+	payRepo := _payRepo.NewMysqlpayRepository(Connect)
+	payUC := _payUC.NewPaymentUsecase(payRepo, timeoutContext)
+	payCtrl := _payCtrl.NewPaymentController(payUC)
+
 	routesInit := routes.ControllerList{
-		UserController:  *userCtrl,
-		MovieController: *movieCtrl,
-		JwtConfig:       configJWT.Init(),
+		UserController:        *userCtrl,
+		MovieController:       *movieCtrl,
+		SubcriptionController: *subsCtrl,
+		PaymentController:     *payCtrl,
+		JwtConfig:             configJWT.Init(),
 	}
 
 	routesInit.RouteRegister(e)

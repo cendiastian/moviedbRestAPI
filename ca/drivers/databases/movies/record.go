@@ -33,7 +33,7 @@ type Movies struct {
 	ImdbId    string `gorm:"unique"`
 	Type      string
 	Poster    string
-	Genre     []movies.Genre `gorm:"many2many:movie_Genre;" json:"Genre"`
+	Genre     []movies.Genre `gorm:"many2many:movie_Genre;"`
 	Writer    string
 	Actors    string
 	CreatedAt time.Time

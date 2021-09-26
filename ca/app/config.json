@@ -6,6 +6,9 @@
     "context":{
       "timeout":2
     },
+    "apikey":{
+      "key":"8b8a25e8"
+    },
     "database": {
         "host": "localhost",
         "port": "3306",

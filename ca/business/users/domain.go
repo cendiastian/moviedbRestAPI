@@ -2,17 +2,19 @@ package users
 
 import (
 	"context"
+	"project/ca/business/transactions"
 	"time"
 )
 
 type User struct {
-	Id        int
-	Name      string
-	Email     string
-	Password  string
-	Token     string
-	CreatedAt time.Time
-	UpdatedAt time.Time
+	Id          int
+	Name        string
+	Email       string
+	Password    string
+	Token       string
+	Transaction transactions.Transaction
+	CreatedAt   time.Time
+	UpdatedAt   time.Time
 }
 
 type Usecase interface {

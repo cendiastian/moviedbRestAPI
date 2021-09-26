@@ -2,6 +2,7 @@ package movies
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"project/ca/app/middlewares"
 	"time"
@@ -88,110 +89,81 @@ func (uc *Usecases) SearchMovie(c context.Context, title string) ([]Movie, error
 
 	return movie, nil
 }
+func (uc *Usecases) FilterGenre(c context.Context, genre string) ([]Movie, error) {
+	ctx, error := context.WithTimeout(c, uc.contextTimeout)
+	defer error()
+	fmt.Println(genre)
+	movie, err := uc.Repo.FilterGenre(ctx, genre)
+	if err != nil {
+		return []Movie{}, err
+	}
 
-// func (uc *Usecases) CreateGenreAPI(c context.Context, domain Genre) (Genre, error) {
+	return movie, nil
+}
+func (uc *Usecases) FilterOrder(c context.Context, order string) ([]Movie, error) {
+	ctx, error := context.WithTimeout(c, uc.contextTimeout)
+	defer error()
+	fmt.Println(order)
+	movie, err := uc.Repo.FilterOrder(ctx, order)
+	if err != nil {
+		return []Movie{}, err
+	}
 
-// 	ctx, error := context.WithTimeout(c, uc.contextTimeout)
-// 	defer error()
+	return movie, nil
+}
 
-// 	domain.UpdatedAt = time.Now()
+func (uc *Usecases) GetAllMovie(c context.Context) ([]Movie, error) {
+	ctx, error := context.WithTimeout(c, uc.contextTimeout)
+	defer error()
 
-// 	genre, err := uc.Repo.CreateGenreAPI(ctx, domain.Name)
-// 	if err != nil {
-// 		return Genre{}, err
-// 	}
+	movie, err := uc.Repo.GetAllMovie(ctx)
+	if err != nil {
+		return []Movie{}, err
+	}
 
-// 	return genre, nil
+	return movie, nil
+}
 
-// }
+func (uc *Usecases) DeleteMovie(c context.Context, id int) (Movie, error) {
+	ctx, cancel := context.WithTimeout(c, uc.contextTimeout)
+	defer cancel()
 
-// func (uc *MovieUsecase) GetAllMovie(c context.Context) ([]Movie, error) {
-// 	ctx, error := context.WithTimeout(c, uc.contextTimeout)
-// 	defer error()
+	del, err := uc.Repo.DeleteMovie(ctx, id)
+	if err != nil {
+		return Movie{}, err
+	}
 
-// 	movie, err := uc.Repo.GetAllMovie(ctx)
-// 	if err != nil {
-// 		return []Movie{}, err
-// 	}
+	return del, nil
+}
 
-// 	return movie, nil
-// }
+func (uc *Usecases) UpdateMovie(c context.Context, domain Movie) (err error) {
 
-/*
-// // func (uc *UserUsecase) Login(ctx context.Context, email string, password string) (Domain, error) {
-// func (uc *UserUsecase) Login(ctx context.Context, domain User) (User, error) {
+	if domain.Id == 0 {
+		return errors.New("mohon isi ID")
+	}
 
-// 	if domain.Email == "" {
-// 		return User{}, errors.New("mohon isi email")
-// 	}
+	ctx, error := context.WithTimeout(c, uc.contextTimeout)
+	defer error()
 
-// 	if domain.Password == "" {
-// 		return User{}, errors.New("mohon isi password")
-// 	}
+	domain.UpdatedAt = time.Now()
 
-// 	var err error
-// 	// domain.Password, err = encrypt.Hash(domain.Password)
+	err = uc.Repo.UpdateMovie(ctx, domain.Id, domain.Title, domain.Type)
+	if err != nil {
+		return err
+	}
 
-// 	// user, err := uc.Repo.Login(ctx, domain.Email, domain.Password)
-// 	if err != nil {
-// 		return User{}, err
-// 	}
+	return nil
 
-// 	user, err := uc.Repo.Login(ctx, domain.Email, domain.Password)
-// 	if err != nil {
-// 		return User{}, err
-// 	}
+}
 
-// 	// user.Token, err = uc.ConfigJWT.GenerateToken(user.Id)
-// 	if err != nil {
-// 		return User{}, err
-// 	}
+func (uc *Usecases) DeleteAll(c context.Context) error {
+	ctx, cancel := context.WithTimeout(c, uc.contextTimeout)
+	defer cancel()
 
-// 	return user, nil
-// }
+	err := uc.Repo.DeleteAll(ctx)
+	if err != nil {
+		return err
+	}
 
-// func (uc *UserUsecase) Delete(c context.Context, domain User) (err error) {
-
-// 	if domain.Id == 0 {
-// 		return errors.New("mohon isi ID")
-// 	}
-
-// 	ctx, error := context.WithTimeout(c, uc.contextTimeout)
-// 	defer error()
-
-// 	exist, err := uc.Repo.UserDetail(ctx, domain.Id)
-// 	if err != nil {
-// 		return err
-// 	}
-// 	if exist == (User{}) {
-// 		return err
-// 	}
-
-// 	err = uc.Repo.Delete(ctx, domain.Id)
-// 	if err != nil {
-// 		return err
-// 	}
-
-// 	return nil
-// }
-
-// func (uc *UserUsecase) Update(c context.Context, domain User) (err error) {
-
-// 	if domain.Id == 0 {
-// 		return errors.New("mohon isi ID")
-// 	}
-
-// 	ctx, error := context.WithTimeout(c, uc.contextTimeout)
-// 	defer error()
-
-// 	domain.UpdatedAt = time.Now()
-
-// 	err = uc.Repo.Update(ctx, domain.Id, domain.Email, domain.Password)
-// 	if err != nil {
-// 		return err
-// 	}
-
-// 	return nil
-
-// }
-*/
+	return nil
+}

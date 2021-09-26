@@ -1,17 +1,19 @@
 package requests
 
-// import "project/ca/business/users"
+import (
+	"project/ca/business/movies"
+)
 
-// type UserUpdate struct {
-// 	Id       int    `json:"id"`
-// 	Email    string `json:"email"`
-// 	Password string `json:"password"`
-// }
+type MovieUpdate struct {
+	Id    int    `json:"id"`
+	Title string `json:"Title"`
+	Type  string `json:"Type"`
+}
 
-// func (user *UserUpdate) ToDomain() users.User {
-// 	return users.User{
-// 		Id:       user.Id,
-// 		Email:    user.Email,
-// 		Password: user.Password,
-// 	}
-// }
+func (movie *MovieUpdate) ToDomain() movies.Movie {
+	return movies.Movie{
+		Id:    movie.Id,
+		Title: movie.Title,
+		Type:  movie.Type,
+	}
+}

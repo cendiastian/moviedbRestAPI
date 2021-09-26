@@ -108,15 +108,103 @@ func (MovieController MovieController) MovieDetail(c echo.Context) error {
 
 func (MovieController MovieController) SearchMovie(c echo.Context) error {
 
-	Title := c.Param("Title")
-	fmt.Println(Title)
+	title := c.QueryParam("title")
+
 	ctx := c.Request().Context()
-	movie, err := MovieController.MovieUC.SearchMovie(ctx, Title)
+	movie, err := MovieController.MovieUC.SearchMovie(ctx, title)
 	if err != nil {
 		return controllers.NewErrorResponse(c, http.StatusInternalServerError, err)
 	}
 
 	return controllers.NewSuccesResponse(c, responses.ToListDomain(movie))
+}
+
+func (MovieController MovieController) FilterOrder(c echo.Context) error {
+
+	Order := c.QueryParam("Order")
+
+	fmt.Println(Order)
+	ctx := c.Request().Context()
+	movie, err := MovieController.MovieUC.FilterOrder(ctx, Order)
+	if err != nil {
+		return controllers.NewErrorResponse(c, http.StatusInternalServerError, err)
+	}
+
+	return controllers.NewSuccesResponse(c, responses.ToListDomain(movie))
+}
+
+func (MovieController MovieController) FilterGenre(c echo.Context) error {
+	var FilterGenre []movies.Movie
+	Genre := c.QueryParam("Genre")
+	fmt.Println(Genre)
+	ctx := c.Request().Context()
+	movie, err := MovieController.MovieUC.FilterGenre(ctx, Genre)
+	if err != nil {
+		return controllers.NewErrorResponse(c, http.StatusInternalServerError, err)
+	}
+
+	for i, v := range movie {
+		for _, b := range v.Genre {
+			if b.Name == Genre {
+				FilterGenre = append(FilterGenre, movie[i])
+			}
+		}
+	}
+
+	return controllers.NewSuccesResponse(c, responses.ToListDomain(FilterGenre))
+}
+
+func (MovieController MovieController) DeleteAll(c echo.Context) error {
+
+	ctx := c.Request().Context()
+	error := MovieController.MovieUC.DeleteAll(ctx)
+
+	if error != nil {
+		return controllers.NewErrorResponse(c, http.StatusInternalServerError, error)
+	}
+
+	return controllers.NewSuccesResponse(c, responses.FromDomainMovie(movies.Movie{}))
+}
+
+func (MovieController MovieController) DeleteMovie(c echo.Context) error {
+
+	Id, err := strconv.Atoi(c.Param("Id"))
+	if err != nil {
+		return controllers.NewErrorResponse(c, http.StatusInternalServerError, err)
+	}
+
+	ctx := c.Request().Context()
+	movie, err := MovieController.MovieUC.DeleteMovie(ctx, Id)
+	if err != nil {
+		return controllers.NewErrorResponse(c, http.StatusInternalServerError, err)
+	}
+
+	return controllers.NewSuccesResponse(c, responses.FromDomainMovie(movie))
+}
+
+func (MovieController MovieController) GetAllMovie(c echo.Context) error {
+
+	ctx := c.Request().Context()
+	movie, err := MovieController.MovieUC.GetAllMovie(ctx)
+	if err != nil {
+		return controllers.NewErrorResponse(c, http.StatusInternalServerError, err)
+	}
+
+	return controllers.NewSuccesResponse(c, responses.ToListDomain(movie))
+}
+
+func (MovieController MovieController) UpdateMovie(c echo.Context) error {
+
+	Update := requests.MovieUpdate{}
+	c.Bind(&Update)
+
+	ctx := c.Request().Context()
+	err := MovieController.MovieUC.UpdateMovie(ctx, Update.ToDomain())
+	if err != nil {
+		return controllers.NewErrorResponse(c, http.StatusInternalServerError, err)
+	}
+
+	return controllers.UpdateSuccesResponse(c, "Berhasil Merubah Data User")
 }
 
 /*Movie
