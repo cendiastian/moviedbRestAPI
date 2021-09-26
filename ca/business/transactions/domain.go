@@ -9,7 +9,7 @@ type Payment_method struct {
 	Id          int
 	Name        string
 	Status      int
-	Transaction Transaction
+	Transaction []Transaction
 	CreatedAt   time.Time
 	UpdatedAt   time.Time
 }

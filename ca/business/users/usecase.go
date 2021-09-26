@@ -90,7 +90,7 @@ func (uc *UserUsecase) Delete(c context.Context, domain User) (err error) {
 	if err != nil {
 		return err
 	}
-	if exist == (User{}) {
+	if exist.Id == 0 {
 		return err
 	}
 

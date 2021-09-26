@@ -9,7 +9,7 @@ type Payment_method struct {
 	Id          int `gorm:"primaryKey"`
 	Name        string
 	Status      int
-	Transaction transactions.Transaction `gorm:"foreignKey:Payment_method_id"`
+	Transaction []transactions.Transaction `gorm:"foreignKey:Payment_method_id"`
 	CreatedAt   time.Time
 	UpdatedAt   time.Time
 }

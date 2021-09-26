@@ -13,7 +13,7 @@ type SubcriptionPlan struct {
 	Name        string
 	Expired     string
 	Price       int
-	Transaction transactions.Transaction `gorm:"foreignKey:Plan_id;references:id;foreignKey:Price;references:Price"`
+	Transaction []transactions.Transaction `gorm:"foreignKey:Plan_id;references:id;foreignKey:Price;references:Price"`
 	CreatedAt   time.Time
 	UpdatedAt   time.Time
 	DeletedAt   gorm.DeletedAt `gorm:"index"`

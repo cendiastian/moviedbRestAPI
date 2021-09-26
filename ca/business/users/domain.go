@@ -12,7 +12,7 @@ type User struct {
 	Email       string
 	Password    string
 	Token       string
-	Transaction transactions.Transaction
+	Transaction []transactions.Transaction
 	CreatedAt   time.Time
 	UpdatedAt   time.Time
 }

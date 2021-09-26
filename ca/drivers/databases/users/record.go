@@ -13,7 +13,7 @@ type Users struct {
 	Email       string `gorm:"unique"`
 	Name        string
 	Password    string
-	Transaction transactions.Transaction `gorm:"foreignKey:User_id;references:Id"`
+	Transaction []transactions.Transaction `gorm:"foreignKey:User_Id"`
 	CreatedAt   time.Time
 	UpdatedAt   time.Time
 	DeletedAt   gorm.DeletedAt `gorm:"index"`
