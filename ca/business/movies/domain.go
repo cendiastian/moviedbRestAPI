@@ -2,20 +2,21 @@ package movies
 
 import (
 	"context"
+	"project/ca/business/users"
 	"time"
 )
 
 type Movie struct {
-	Id     int
-	Title  string
-	Year   string
-	ImdbId string
-	Type   string
-	Poster string
-	Genre  []Genre
-	Writer string
-	Actors string
-	// Rating    string
+	Id        int
+	Title     string
+	Year      string
+	ImdbId    string
+	Type      string
+	Poster    string
+	Genre     []Genre
+	Writer    string
+	Actors    string
+	Ratings   []users.User
 	CreatedAt time.Time
 	UpdatedAt time.Time
 }

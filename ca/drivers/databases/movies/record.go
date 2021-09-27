@@ -2,20 +2,21 @@ package movies
 
 import (
 	"project/ca/business/movies"
+	"project/ca/business/users"
 	"time"
 
 	"gorm.io/gorm"
 )
 
 type GetMovieAPI struct {
-	Title  string `json:"Title"`
-	Year   string `json:"Year"`
-	ImdbId string `json:"imdbId"`
-	Type   string `json:"Type"`
-	Poster string `json:"Poster"`
-	Genre  string `json:"Genre"`
-	Writer string `json:"Writer"`
-	Actors string `json:"Actors"`
+	Title  string
+	Year   string
+	ImdbId string
+	Type   string
+	Poster string
+	Genre  string
+	Writer string
+	Actors string
 }
 
 type Genres struct {
@@ -34,6 +35,7 @@ type Movies struct {
 	Type      string
 	Poster    string
 	Genre     []movies.Genre `gorm:"many2many:movie_Genre;"`
+	Ratings   []users.User   `gorm:"many2many:ratings;foreignKey:Id;joinForeignKey:Movie_Id;References:Id;joinReferences:User_Id"`
 	Writer    string
 	Actors    string
 	CreatedAt time.Time

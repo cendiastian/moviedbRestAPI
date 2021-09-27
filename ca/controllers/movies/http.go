@@ -134,7 +134,7 @@ func (MovieController MovieController) FilterOrder(c echo.Context) error {
 }
 
 func (MovieController MovieController) FilterGenre(c echo.Context) error {
-	var FilterGenre []movies.Movie
+	// var FilterGenre []movies.Movie
 	Genre := c.QueryParam("Genre")
 	fmt.Println(Genre)
 	ctx := c.Request().Context()
@@ -143,15 +143,15 @@ func (MovieController MovieController) FilterGenre(c echo.Context) error {
 		return controllers.NewErrorResponse(c, http.StatusInternalServerError, err)
 	}
 
-	for i, v := range movie {
-		for _, b := range v.Genre {
-			if b.Name == Genre {
-				FilterGenre = append(FilterGenre, movie[i])
-			}
-		}
-	}
+	// for i, v := range movie {
+	// 	for _, b := range v.Genre {
+	// 		if b.Name == Genre {
+	// 			FilterGenre = append(FilterGenre, movie[i])
+	// 		}
+	// 	}
+	// }
 
-	return controllers.NewSuccesResponse(c, responses.ToListDomain(FilterGenre))
+	return controllers.NewSuccesResponse(c, responses.ToListDomain(movie))
 }
 
 func (MovieController MovieController) DeleteAll(c echo.Context) error {

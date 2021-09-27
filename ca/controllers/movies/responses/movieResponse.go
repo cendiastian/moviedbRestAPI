@@ -2,6 +2,7 @@ package responses
 
 import (
 	"project/ca/business/movies"
+	"project/ca/business/users"
 	"time"
 )
 
@@ -18,6 +19,7 @@ type MovieResponse struct {
 	Type      string         `json:"Type"`
 	Poster    string         `json:"Poster"`
 	Genre     []movies.Genre `json:"Genre"`
+	Ratings   []users.User   `json:"Rating"`
 	Writer    string         `json:"Writer"`
 	Actors    string         `json:"Actors"`
 	CreatedAt time.Time      `json:"createdAt"`

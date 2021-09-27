@@ -2,6 +2,7 @@ package routes
 
 import (
 	"project/ca/controllers/movies"
+	"project/ca/controllers/ratings"
 	"project/ca/controllers/subscription"
 	"project/ca/controllers/transactions"
 	"project/ca/controllers/users"
@@ -16,6 +17,7 @@ type ControllerList struct {
 	MovieController       movies.MovieController
 	SubcriptionController subscription.SubcriptionController
 	PaymentController     transactions.PaymentController
+	RatingController      ratings.RatingController
 }
 
 func (cl *ControllerList) RouteRegister(e *echo.Echo) {

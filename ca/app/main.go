@@ -5,15 +5,19 @@ import (
 	_middleware "project/ca/app/middlewares"
 	"project/ca/app/routes"
 	_movieUC "project/ca/business/movies"
+	_ratingUC "project/ca/business/ratings"
 	_subsUC "project/ca/business/subscription"
 	_payUC "project/ca/business/transactions"
 	_userUC "project/ca/business/users"
 	_movieCtrl "project/ca/controllers/movies"
+	_ratingCtrl "project/ca/controllers/ratings"
 	_subsCtrl "project/ca/controllers/subscription"
 	_payCtrl "project/ca/controllers/transactions"
 	_userCtrl "project/ca/controllers/users"
 	_movieRepo "project/ca/drivers/databases/movies"
 	_moviedb "project/ca/drivers/databases/movies"
+	_ratingRepo "project/ca/drivers/databases/ratings"
+	_ratingdb "project/ca/drivers/databases/ratings"
 	_subsRepo "project/ca/drivers/databases/subscription"
 	_subsdb "project/ca/drivers/databases/subscription"
 	_payRepo "project/ca/drivers/databases/transactions"
@@ -41,6 +45,7 @@ func init() {
 
 func DB_Migrate(db *gorm.DB) {
 	db.AutoMigrate(&_paydb.Transaction{})
+	db.AutoMigrate(&_ratingdb.Ratings{})
 	db.AutoMigrate(&_userdb.Users{})
 	db.AutoMigrate(&_paydb.Payment_method{})
 	db.AutoMigrate(&_subsdb.SubcriptionPlan{})
@@ -85,11 +90,16 @@ func main() {
 	payUC := _payUC.NewPaymentUsecase(payRepo, timeoutContext)
 	payCtrl := _payCtrl.NewPaymentController(payUC)
 
+	rateRepo := _ratingRepo.NewMysqlRatingRepository(Connect)
+	rateUC := _ratingUC.NewRateUsecase(rateRepo, timeoutContext)
+	rateCtrl := _ratingCtrl.NewRatingController(rateUC)
+
 	routesInit := routes.ControllerList{
 		UserController:        *userCtrl,
 		MovieController:       *movieCtrl,
 		SubcriptionController: *subsCtrl,
 		PaymentController:     *payCtrl,
+		RatingController:      *rateCtrl,
 		JwtConfig:             configJWT.Init(),
 	}
 

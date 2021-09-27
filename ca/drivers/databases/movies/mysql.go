@@ -119,11 +119,22 @@ func (rep *MysqlMovieRepository) SearchMovie(ctx context.Context, title string) 
 }
 func (rep *MysqlMovieRepository) FilterGenre(ctx context.Context, genre string) ([]movies.Movie, error) {
 	var movie []Movies
-
-	result := rep.Connect.Preload("Genre").Find(&movie)
+	// var Genre Genres
+	// result := rep.Connect.Where("name = ?", genre).Find(&Genre)
+	// if result.Error != nil {
+	// 	return []movies.Movie{}, result.Error
+	// }
+	// result := rep.Connect.Preload("Genre").Where("id IN (SELECT movies_id FROM movie_genres WHERE name IN ?)", []string{genre}).Find(&movie)
+	result := rep.Connect.Preload("Genre").
+		Joins("JOIN movie_genres on movie_genres.movies_id = movies.id JOIN genres on movie_genres.genre_id = genres.id AND genres.name = ? ",
+			genre).Find(&movie)
 	if result.Error != nil {
 		return []movies.Movie{}, result.Error
 	}
+	// result = rep.Connect.Find(&movie)
+	// if result.Error != nil {
+	// 	return []movies.Movie{}, result.Error
+	// }
 
 	// for i, v := range movie {
 	// 	for _, n := range v.Genre {
@@ -177,7 +188,7 @@ func (rep *MysqlMovieRepository) FilterOrder(ctx context.Context, order string) 
 
 func (rep *MysqlMovieRepository) GetAllMovie(ctx context.Context) ([]movies.Movie, error) {
 	var movie []Movies
-	result := rep.Connect.Find(&movie)
+	result := rep.Connect.Preload("Genre").Find(&movie)
 	if result.Error != nil {
 		return []movies.Movie{}, result.Error
 	}
