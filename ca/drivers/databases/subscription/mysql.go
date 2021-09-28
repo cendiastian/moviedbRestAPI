@@ -46,8 +46,9 @@ func (rep *MysqlsubsRepository) Delete(ctx context.Context, id int) (subscriptio
 	return subs.ToDomain(), nil
 }
 
-func (rep *MysqlsubsRepository) Update(ctx context.Context, id int, name string, price int) error {
-	result := rep.Connect.Where("id = ?", id).Updates(&SubcriptionPlan{Name: name, Price: price})
+func (rep *MysqlsubsRepository) Update(ctx context.Context, domain subscription.SubcriptionPlan) error {
+	subs := FromDomain(domain)
+	result := rep.Connect.Where("id = ?", subs.Id).Updates(&SubcriptionPlan{Name: subs.Name, Price: subs.Price})
 
 	if result.Error != nil {
 		return result.Error
@@ -56,17 +57,22 @@ func (rep *MysqlsubsRepository) Update(ctx context.Context, id int, name string,
 	return nil
 }
 
-func (rep *MysqlsubsRepository) CreatePlan(ctx context.Context, name string, expired string, price int) (subscription.SubcriptionPlan, error) {
-	subs := SubcriptionPlan{
-		Name:    name,
-		Expired: expired,
-		Price:   price,
-	}
+func (rep *MysqlsubsRepository) CreatePlan(ctx context.Context, domain subscription.SubcriptionPlan) (subscription.SubcriptionPlan, error) {
+	subs := FromDomain(domain)
 	result := rep.Connect.Create(&subs)
 
 	if result.Error != nil {
 		return subscription.SubcriptionPlan{}, result.Error
 	}
 
+	return subs.ToDomain(), nil
+}
+
+func (rep *MysqlsubsRepository) DetailTrans(ctx context.Context, id int) (subscription.SubcriptionPlan, error) {
+	var subs SubcriptionPlan
+	result := rep.Connect.Preload("Transaction", "Id = ?", id).First(&subs)
+	if result.Error != nil {
+		return subscription.SubcriptionPlan{}, result.Error
+	}
 	return subs.ToDomain(), nil
 }

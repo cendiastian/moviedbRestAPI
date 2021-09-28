@@ -5,43 +5,74 @@ import (
 	"errors"
 	"fmt"
 	"project/ca/app/middlewares"
+	"project/ca/business/genres"
+	"project/ca/business/omdb"
+
+	// "project/ca/business/ratings"
+	"strings"
 	"time"
 )
 
 type Usecases struct {
-	ConfigJWT      middlewares.ConfigJWT
-	Repo           Repository
+	ConfigJWT middlewares.ConfigJWT
+	Repo      Repository
+	// RepoRate       ratings.Repository
+	RepoGenre      genres.Repository
+	RepoAPI        omdb.Repository
 	contextTimeout time.Duration
 }
 
-func NewMovieUsecase(repo Repository, timeout time.Duration) Usecase {
+func NewMovieUsecase(repo Repository, timeout time.Duration, repogenre genres.Repository, repoapi omdb.Repository) Usecase {
 	return &Usecases{
 		// ConfigJWT:      configJWT,
 		Repo:           repo,
 		contextTimeout: timeout,
+		RepoGenre:      repogenre,
+		RepoAPI:        repoapi,
 	}
 }
 
-func (uc *Usecases) GetAPI(c context.Context, ImdbId string) (res GetAPI, err error) {
+func (uc *Usecases) CreateMovie(c context.Context, ImdbId string) (Movie, error) {
+	var movie Movie
+	var genre genres.Genre
+
 	ctx, error := context.WithTimeout(c, uc.contextTimeout)
 	defer error()
 
-	movie, err := uc.Repo.GetAPI(ctx, ImdbId)
+	movie.UpdatedAt = time.Now()
+
+	API, err := uc.RepoAPI.GetAPI(ctx, ImdbId)
 	if err != nil {
-		return GetAPI{}, err
+		return Movie{}, err
 	}
-
-	return movie, nil
-}
-
-func (uc *Usecases) CreateMovieAPI(c context.Context, domain Movie) (Movie, error) {
-
-	ctx, error := context.WithTimeout(c, uc.contextTimeout)
-	defer error()
-
-	domain.UpdatedAt = time.Now()
-
-	movie, err := uc.Repo.CreateMovieAPI(ctx, domain.Title, domain.Year, domain.ImdbId, domain.Type, domain.Poster, domain.Genre, domain.Writer, domain.Actors)
+	fmt.Println(API)
+	GenreName := strings.Split(API.Genre, ", ")
+	fmt.Println(GenreName)
+	for _, v := range GenreName {
+		genre.Name = v
+		fmt.Println(genre.Name)
+		scan, err := uc.RepoGenre.FirstOrCreate(ctx, genre.Name)
+		if err != nil {
+			return Movie{}, err
+		}
+		movie.Genre = append(movie.Genre, scan)
+		if err != nil {
+			return Movie{}, err
+		}
+	}
+	fmt.Println(movie.Genre)
+	movie = Movie{
+		Title:  API.Title,
+		ImdbId: API.ImdbId,
+		Year:   API.Year,
+		Type:   API.Type,
+		Poster: API.Poster,
+		Genre:  movie.Genre,
+		Writer: API.Writer,
+		Actors: API.Actors,
+	}
+	fmt.Println(movie.Genre)
+	movie, err = uc.Repo.CreateMovie(ctx, movie, movie.Genre)
 	if err != nil {
 		return Movie{}, err
 	}
@@ -54,28 +85,17 @@ func (uc *Usecases) MovieDetail(c context.Context, id int) (res Movie, err error
 	ctx, error := context.WithTimeout(c, uc.contextTimeout)
 	defer error()
 
+	// rate, err := uc.RepoRate.GetAllRate(ctx, id)
+	// if err != nil {
+	// 	return []Movie{}, err
+	// }
+
 	movie, err := uc.Repo.MovieDetail(ctx, id)
 	if err != nil {
 		return Movie{}, err
 	}
 
 	return movie, nil
-}
-
-func (uc *Usecases) ScanGenre(c context.Context, domain Genre) (Genre, error) {
-
-	ctx, error := context.WithTimeout(c, uc.contextTimeout)
-	defer error()
-
-	domain.UpdatedAt = time.Now()
-
-	genre, err := uc.Repo.ScanGenre(ctx, domain.Name)
-	if err != nil {
-		return Genre{}, err
-	}
-
-	return genre, nil
-
 }
 
 func (uc *Usecases) SearchMovie(c context.Context, title string) ([]Movie, error) {
@@ -128,6 +148,10 @@ func (uc *Usecases) DeleteMovie(c context.Context, id int) (Movie, error) {
 	ctx, cancel := context.WithTimeout(c, uc.contextTimeout)
 	defer cancel()
 
+	_, err := uc.Repo.MovieDetail(ctx, id)
+	if err != nil {
+		return Movie{}, err
+	}
 	del, err := uc.Repo.DeleteMovie(ctx, id)
 	if err != nil {
 		return Movie{}, err
@@ -144,10 +168,13 @@ func (uc *Usecases) UpdateMovie(c context.Context, domain Movie) (err error) {
 
 	ctx, error := context.WithTimeout(c, uc.contextTimeout)
 	defer error()
-
+	_, err = uc.Repo.MovieDetail(ctx, domain.Id)
+	if err != nil {
+		return err
+	}
 	domain.UpdatedAt = time.Now()
 
-	err = uc.Repo.UpdateMovie(ctx, domain.Id, domain.Title, domain.Type)
+	err = uc.Repo.UpdateMovie(ctx, domain)
 	if err != nil {
 		return err
 	}

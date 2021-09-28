@@ -2,84 +2,52 @@ package transactions
 
 import (
 	"context"
+	"fmt"
 	"project/ca/business/transactions"
 
 	"gorm.io/gorm"
 )
 
-type MysqlpayRepository struct {
+type MysqlTransRepository struct {
 	Connect *gorm.DB
 }
 
-func NewMysqlpayRepository(connect *gorm.DB) transactions.Repository {
-	return &MysqlpayRepository{
+func NewMysqlTransRepository(connect *gorm.DB) transactions.Repository {
+	return &MysqlTransRepository{
 		Connect: connect,
 	}
 }
 
-func (rep *MysqlpayRepository) GetAll(ctx context.Context) ([]transactions.Payment_method, error) {
-	var pay []Payment_method
-	result := rep.Connect.Find(&pay)
-	if result.Error != nil {
-		return []transactions.Payment_method{}, result.Error
-	}
-	return ToListDomain(pay), nil
-}
+func (rep *MysqlTransRepository) CreateTransaction(ctx context.Context, domain transactions.Transaction) (transactions.Transaction, error) {
+	trans := FromDomainTransaction(domain)
 
-func (rep *MysqlpayRepository) Detail(ctx context.Context, id int) (transactions.Payment_method, error) {
-	var pay Payment_method
-	result := rep.Connect.First(&pay, "id= ?", id)
-	if result.Error != nil {
-		return transactions.Payment_method{}, result.Error
-	}
-	return pay.ToDomain(), nil
-}
-
-func (rep *MysqlpayRepository) Delete(ctx context.Context, id int) (transactions.Payment_method, error) {
-	var pay Payment_method
-	result := rep.Connect.Where("id = ?", id).Delete(&pay)
-
-	if result.Error != nil {
-		return transactions.Payment_method{}, result.Error
-	}
-
-	return pay.ToDomain(), nil
-}
-
-func (rep *MysqlpayRepository) Update(ctx context.Context, id int, name string, status int) error {
-	result := rep.Connect.Where("id = ?", id).Updates(&Payment_method{Name: name, Status: status})
-
-	if result.Error != nil {
-		return result.Error
-	}
-
-	return nil
-}
-
-func (rep *MysqlpayRepository) Register(ctx context.Context, name string, status int) (transactions.Payment_method, error) {
-	pay := Payment_method{
-		Name:   name,
-		Status: status,
-	}
-	result := rep.Connect.Create(&pay)
-
-	if result.Error != nil {
-		return transactions.Payment_method{}, result.Error
-	}
-
-	return pay.ToDomain(), nil
-}
-func (rep *MysqlpayRepository) CreateTransaction(ctx context.Context, payment_method_id int, user_id int, plan_id int) (transactions.Transaction, error) {
-	pay := Transaction{
-		Payment_method_id: payment_method_id,
-		User_Id:           user_id,
-		Plan_Id:           plan_id,
-	}
-	result := rep.Connect.Create(&pay)
+	fmt.Println(trans)
+	result := rep.Connect.Create(&trans)
 
 	if result.Error != nil {
 		return transactions.Transaction{}, result.Error
 	}
 
-	return pay.ToDomainTransaction(), nil
+	return trans.ToDomainTransaction(), nil
 }
+
+func (rep *MysqlTransRepository) DetailTrans(ctx context.Context, id int) (transactions.Transaction, error) {
+	var trans Transaction
+	// var subs subscription.SubcriptionPlan
+	result := rep.Connect.Preload("Payment_method").Preload("User").Preload("Subscription_Plan").Where("Id = ?", id).First(&trans)
+
+	if result.Error != nil {
+		return transactions.Transaction{}, result.Error
+	}
+
+	return trans.ToDomainTransaction(), nil
+}
+
+// func (rep *MysqlsubsRepository) DetailTrans(ctx context.Context, id int) (subscription.SubcriptionPlan, error) {
+// 	var subs SubcriptionPlan
+// 	result := rep.Connect.Preload("Transaction", "Id = ?", id).First(&subs)
+// 	if result.Error != nil {
+// 		return subscription.SubcriptionPlan{}, result.Error
+// 	}
+// 	return subs.ToDomain(), nil
+// }

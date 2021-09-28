@@ -6,6 +6,7 @@ import (
 	"project/ca/controllers"
 	"project/ca/controllers/ratings/requests"
 	"project/ca/controllers/ratings/responses"
+	"strconv"
 
 	"github.com/labstack/echo/v4"
 )
@@ -20,6 +21,23 @@ func NewRatingController(RateUseCase ratings.Usecase) *RatingController {
 	}
 }
 
+// func (RatingController RatingController) GetAllRate(c echo.Context) error {
+// 	// fmt.Println("UserDetail")
+
+// 	Movie, err := strconv.Atoi(c.Param("Movie"))
+// 	if err != nil {
+// 		return controllers.NewErrorResponse(c, http.StatusInternalServerError, err)
+// 	}
+
+// 	ctx := c.Request().Context()
+// 	// trans, err := RatingController.RateUC.GetAllRate(ctx, Movie)
+// 	if err != nil {
+// 		return controllers.NewErrorResponse(c, http.StatusInternalServerError, err)
+// 	}
+
+// 	return controllers.NewSuccesResponse(c, responses.ToListDomain(trans))
+// }
+
 func (RatingController RatingController) Delete(c echo.Context) error {
 
 	RatingDelete := requests.RatingDelete{}
@@ -31,7 +49,7 @@ func (RatingController RatingController) Delete(c echo.Context) error {
 		return controllers.NewErrorResponse(c, http.StatusInternalServerError, err)
 	}
 
-	return controllers.UpdateSuccesResponse(c, "Berhasil Menghapus User")
+	return controllers.UpdateSuccesResponse(c, "Berhasil Menghapus Rating")
 }
 
 func (RatingController RatingController) Update(c echo.Context) error {
@@ -45,7 +63,7 @@ func (RatingController RatingController) Update(c echo.Context) error {
 		return controllers.NewErrorResponse(c, http.StatusInternalServerError, err)
 	}
 
-	return controllers.UpdateSuccesResponse(c, "Berhasil Merubah Data User")
+	return controllers.UpdateSuccesResponse(c, "Berhasil Merubah Data Rating")
 }
 
 func (RatingController RatingController) Create(c echo.Context) error {
@@ -54,10 +72,30 @@ func (RatingController RatingController) Create(c echo.Context) error {
 	c.Bind(&RatingCreate)
 
 	ctx := c.Request().Context()
-	user, err := RatingController.RateUC.Create(ctx, RatingCreate.ToDomain())
+	rate, err := RatingController.RateUC.Create(ctx, RatingCreate.ToDomain())
 	if err != nil {
 		return controllers.NewErrorResponse(c, http.StatusInternalServerError, err)
 	}
 
-	return controllers.NewSuccesResponse(c, responses.FromDomain(user))
+	return controllers.NewSuccesResponse(c, responses.FromDomain(rate))
+}
+func (RatingController RatingController) Detail(c echo.Context) error {
+	// fmt.Println("UserDetail")
+
+	Movie, err := strconv.Atoi(c.Param("Movie"))
+	if err != nil {
+		return controllers.NewErrorResponse(c, http.StatusInternalServerError, err)
+	}
+	User, err := strconv.Atoi(c.Param("User"))
+	if err != nil {
+		return controllers.NewErrorResponse(c, http.StatusInternalServerError, err)
+	}
+
+	ctx := c.Request().Context()
+	trans, err := RatingController.RateUC.Detail(ctx, Movie, User)
+	if err != nil {
+		return controllers.NewErrorResponse(c, http.StatusInternalServerError, err)
+	}
+
+	return controllers.NewSuccesResponse(c, responses.FromDomain(trans))
 }

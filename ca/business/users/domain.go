@@ -13,8 +13,9 @@ type User struct {
 	Password    string
 	Token       string
 	Transaction []transactions.Transaction
-	CreatedAt   time.Time
-	UpdatedAt   time.Time
+	// Ratings     []ratings.Ratings
+	CreatedAt time.Time
+	UpdatedAt time.Time
 }
 
 type Usecase interface {
@@ -31,7 +32,7 @@ type Repository interface {
 	GetAll(ctx context.Context) ([]User, error)
 	Login(ctx context.Context, email string, password string) (User, error)
 	UserDetail(ctx context.Context, id int) (User, error)
-	Update(ctx context.Context, id int, email string, password string) error
+	Update(ctx context.Context, User User) error
 	Delete(ctx context.Context, id int) error
-	Register(ctx context.Context, name string, email string, password string) (User, error)
+	Register(ctx context.Context, User User) (User, error)
 }

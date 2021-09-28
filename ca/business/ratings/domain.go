@@ -2,29 +2,35 @@ package ratings
 
 import (
 	"context"
+	// "project/ca/drivers/databases/movies"
+
 	"time"
 )
 
-type Rating struct {
-	Movie_Id  int
-	User_Id   int
+type Ratings struct {
+	MovieId int
+	// Title   string
+	// Movie     movies.Movie
+	UserId   int
+	Username string
+	// User      users.User
 	Rate      float32
 	CreatedAt time.Time
 	UpdatedAt time.Time
 }
 
 type Usecase interface {
-	// GetAll(ctx context.Context) ([]Rating, error)
-	// Detail(ctx context.Context, id int) (Rating, error)
-	Update(ctx context.Context, Rating Rating) error
-	Delete(ctx context.Context, Rating Rating) error
-	Create(ctx context.Context, Rating Rating) (Rating, error)
+	// GetAllRate(ctx context.Context, id int) (Ratings, error)
+	Detail(ctx context.Context, movie int, user int) (Ratings, error)
+	Update(ctx context.Context, Ratings Ratings) error
+	Delete(ctx context.Context, Ratings Ratings) error
+	Create(ctx context.Context, Ratings Ratings) (Ratings, error)
 }
 
 type Repository interface {
-	// GetAll(ctx context.Context) ([]Rating, error)
-	// Detail(ctx context.Context, id int) (Rating, error)
-	Update(ctx context.Context, Movie_Id int, User_Id int, Rate float32) error
-	Delete(ctx context.Context, Movie_Id int, User_Id int) error
-	Create(ctx context.Context, Movie_Id int, User_Id int, Rate float32) (Rating, error)
+	// GetAllRate(ctx context.Context, id int) (Ratings, error)
+	Detail(ctx context.Context, movie int, user int) (Ratings, error)
+	Update(ctx context.Context, Ratings Ratings) error
+	Delete(ctx context.Context, MovieId int, UserId int) error
+	Create(ctx context.Context, Ratings Ratings) (Ratings, error)
 }

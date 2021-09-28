@@ -8,7 +8,6 @@ import (
 	"project/ca/controllers/movies/requests"
 	"project/ca/controllers/movies/responses"
 	"strconv"
-	"strings"
 
 	"github.com/labstack/echo/v4"
 )
@@ -23,45 +22,11 @@ func NewMovieController(MovieUsecase movies.Usecase) *MovieController {
 	}
 }
 
-func (MovieController MovieController) CreateMovieAPI(c echo.Context) error {
+func (MovieController MovieController) CreateMovie(c echo.Context) error {
 	ImdbId := (c.Param("ImdbId"))
-	CreateMovieAPI := requests.CreateMovieAPI{}
-	CreateGenreAPI := requests.CreateGenreAPI{}
-
 	ctx := c.Request().Context()
-	get, err := MovieController.MovieUC.GetAPI(ctx, ImdbId)
-	if err != nil {
-		return controllers.NewErrorResponse(c, http.StatusInternalServerError, err)
-	}
-
-	GenreName := strings.Split(get.Genre, ", ")
-
-	for _, v := range GenreName {
-		CreateGenreAPI.Name = v
-		fmt.Println(CreateGenreAPI.Name)
-		scan, err := MovieController.MovieUC.ScanGenre(ctx, CreateGenreAPI.ToDomainGenre())
-		if err != nil {
-			return controllers.NewErrorResponse(c, http.StatusInternalServerError, err)
-		}
-		CreateMovieAPI.Genre = append(CreateMovieAPI.Genre, scan)
-		if err != nil {
-			return controllers.NewErrorResponse(c, http.StatusInternalServerError, err)
-		}
-	}
-
-	CreateMovieAPI = requests.CreateMovieAPI{
-		Title:  get.Title,
-		ImdbId: get.ImdbId,
-		Year:   get.Year,
-		Type:   get.Type,
-		Poster: get.Poster,
-		Genre:  CreateMovieAPI.Genre,
-		Writer: get.Writer,
-		Actors: get.Actors,
-	}
-	fmt.Println(CreateMovieAPI.Year)
-
-	movie, err := MovieController.MovieUC.CreateMovieAPI(ctx, CreateMovieAPI.ToDomain())
+	fmt.Println(ImdbId)
+	movie, err := MovieController.MovieUC.CreateMovie(ctx, ImdbId)
 	if err != nil {
 		return controllers.NewErrorResponse(c, http.StatusInternalServerError, err)
 	}
@@ -98,6 +63,7 @@ func (MovieController MovieController) MovieDetail(c echo.Context) error {
 	}
 
 	ctx := c.Request().Context()
+
 	movie, err := MovieController.MovieUC.MovieDetail(ctx, Id)
 	if err != nil {
 		return controllers.NewErrorResponse(c, http.StatusInternalServerError, err)
@@ -143,14 +109,6 @@ func (MovieController MovieController) FilterGenre(c echo.Context) error {
 		return controllers.NewErrorResponse(c, http.StatusInternalServerError, err)
 	}
 
-	// for i, v := range movie {
-	// 	for _, b := range v.Genre {
-	// 		if b.Name == Genre {
-	// 			FilterGenre = append(FilterGenre, movie[i])
-	// 		}
-	// 	}
-	// }
-
 	return controllers.NewSuccesResponse(c, responses.ToListDomain(movie))
 }
 
@@ -163,7 +121,7 @@ func (MovieController MovieController) DeleteAll(c echo.Context) error {
 		return controllers.NewErrorResponse(c, http.StatusInternalServerError, error)
 	}
 
-	return controllers.NewSuccesResponse(c, responses.FromDomainMovie(movies.Movie{}))
+	return controllers.UpdateSuccesResponse(c, "Berhasil Menghapus semua Data Movie")
 }
 
 func (MovieController MovieController) DeleteMovie(c echo.Context) error {
@@ -174,12 +132,12 @@ func (MovieController MovieController) DeleteMovie(c echo.Context) error {
 	}
 
 	ctx := c.Request().Context()
-	movie, err := MovieController.MovieUC.DeleteMovie(ctx, Id)
+	_, err = MovieController.MovieUC.DeleteMovie(ctx, Id)
 	if err != nil {
 		return controllers.NewErrorResponse(c, http.StatusInternalServerError, err)
 	}
 
-	return controllers.NewSuccesResponse(c, responses.FromDomainMovie(movie))
+	return controllers.UpdateSuccesResponse(c, "Berhasil Menghapus Data Movie")
 }
 
 func (MovieController MovieController) GetAllMovie(c echo.Context) error {
@@ -204,7 +162,7 @@ func (MovieController MovieController) UpdateMovie(c echo.Context) error {
 		return controllers.NewErrorResponse(c, http.StatusInternalServerError, err)
 	}
 
-	return controllers.UpdateSuccesResponse(c, "Berhasil Merubah Data User")
+	return controllers.UpdateSuccesResponse(c, "Berhasil Merubah Data Movie")
 }
 
 /*Movie

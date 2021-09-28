@@ -1,7 +1,7 @@
 package requests
 
 import (
-	"project/ca/business/transactions"
+	"project/ca/business/payments"
 	"time"
 )
 
@@ -12,8 +12,8 @@ type Payment_method struct {
 	UpdatedAt time.Time
 }
 
-func (pay *Payment_method) ToDomain() transactions.Payment_method {
-	return transactions.Payment_method{
+func (pay *Payment_method) ToDomain() payments.Payment_method {
+	return payments.Payment_method{
 		Name:   pay.Name,
 		Status: pay.Status,
 	}

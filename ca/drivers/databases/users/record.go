@@ -1,8 +1,8 @@
 package users
 
 import (
-	"project/ca/business/transactions"
 	"project/ca/business/users"
+	"project/ca/drivers/databases/transactions"
 	"time"
 
 	"gorm.io/gorm"
@@ -14,9 +14,10 @@ type Users struct {
 	Name        string
 	Password    string
 	Transaction []transactions.Transaction `gorm:"foreignKey:User_Id"`
-	CreatedAt   time.Time
-	UpdatedAt   time.Time
-	DeletedAt   gorm.DeletedAt `gorm:"index"`
+	// Ratings     []ratings.Ratings          `gorm:"foreignKey:UserId"`
+	CreatedAt time.Time
+	UpdatedAt time.Time
+	DeletedAt gorm.DeletedAt `gorm:"index"`
 }
 
 func (user *Users) ToDomain() users.User {
@@ -25,9 +26,10 @@ func (user *Users) ToDomain() users.User {
 		Name:        user.Name,
 		Email:       user.Email,
 		Password:    user.Password,
-		Transaction: user.Transaction,
-		CreatedAt:   user.CreatedAt,
-		UpdatedAt:   user.UpdatedAt,
+		Transaction: transactions.ToListDomain(user.Transaction),
+		// Ratings:     user.Ratings,
+		CreatedAt: user.CreatedAt,
+		UpdatedAt: user.UpdatedAt,
 	}
 }
 
@@ -41,12 +43,13 @@ func ToListDomain(data []Users) (result []users.User) {
 
 func FromDomain(domain users.User) Users {
 	return Users{
-		Id:          domain.Id,
-		Name:        domain.Name,
-		Email:       domain.Email,
-		Password:    domain.Password,
-		Transaction: domain.Transaction,
-		CreatedAt:   domain.CreatedAt,
-		UpdatedAt:   domain.UpdatedAt,
+		Id:       domain.Id,
+		Name:     domain.Name,
+		Email:    domain.Email,
+		Password: domain.Password,
+		// Transaction: transactions.ToListDomain(domain.Transaction),
+		// Ratings:     domain.Ratings,
+		CreatedAt: domain.CreatedAt,
+		UpdatedAt: domain.UpdatedAt,
 	}
 }

@@ -53,7 +53,10 @@ func (uc *subsUseCase) Delete(c context.Context, id int) (SubcriptionPlan, error
 
 	ctx, cancel := context.WithTimeout(c, uc.contextTimeout)
 	defer cancel()
-
+	_, err := uc.Repo.Detail(ctx, id)
+	if err != nil {
+		return SubcriptionPlan{}, err
+	}
 	del, err := uc.Repo.Delete(ctx, id)
 	if err != nil {
 		return SubcriptionPlan{}, err
@@ -70,10 +73,13 @@ func (uc *subsUseCase) Update(c context.Context, domain SubcriptionPlan) (err er
 
 	ctx, error := context.WithTimeout(c, uc.contextTimeout)
 	defer error()
-
+	_, err = uc.Repo.Detail(ctx, domain.Id)
+	if err != nil {
+		return err
+	}
 	domain.UpdatedAt = time.Now()
 
-	err = uc.Repo.Update(ctx, domain.Id, domain.Name, domain.Price)
+	err = uc.Repo.Update(ctx, domain)
 	if err != nil {
 		return err
 	}
@@ -99,7 +105,7 @@ func (uc *subsUseCase) CreatePlan(c context.Context, domain SubcriptionPlan) (Su
 
 	domain.UpdatedAt = time.Now()
 
-	subs, err := uc.Repo.CreatePlan(ctx, domain.Name, domain.Expired, domain.Price)
+	subs, err := uc.Repo.CreatePlan(ctx, domain)
 	if err != nil {
 		return SubcriptionPlan{}, err
 	}

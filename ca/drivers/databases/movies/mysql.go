@@ -2,11 +2,12 @@ package movies
 
 import (
 	"context"
-	"encoding/json"
 	"fmt"
-	"io/ioutil"
-	"net/http"
+	_genre_b "project/ca/business/genres"
 	"project/ca/business/movies"
+	_genre_d "project/ca/drivers/databases/genres"
+
+	// "project/ca/drivers/databases/ratings"
 
 	"gorm.io/gorm"
 )
@@ -21,76 +22,50 @@ func NewMysqlMovieRepository(connect *gorm.DB) movies.Repository {
 	}
 }
 
-func (rep *MysqlMovieRepository) GetAPI(ctx context.Context, ImdbId string) (movies.GetAPI, error) {
-	var movie GetMovieAPI
-
-	req, err := http.NewRequest("GET", "http://www.omdbapi.com/?apikey=8b8a25e8&", nil)
-	if err != nil {
-		return movies.GetAPI{}, err
+func (rep *MysqlMovieRepository) CreateMovie(ctx context.Context, domain movies.Movie, array []_genre_b.Genre) (movies.Movie, error) {
+	movie := FromDomain(domain)
+	genre := _genre_d.FromListDomainGenre(array)
+	// var tes Movies
+	tes := Movies{
+		Id:      movie.Id,
+		Title:   movie.Title,
+		Year:    movie.Year,
+		ImdbId:  movie.ImdbId,
+		Type:    movie.Type,
+		Poster:  movie.Poster,
+		Genre:   genre,
+		Ratings: movie.Ratings,
+		Rating:  movie.Rating,
+		Writer:  movie.Writer,
+		Actors:  movie.Actors,
 	}
-
-	query := req.URL.Query()
-	query.Add("i", ImdbId)
-	req.URL.RawQuery = query.Encode()
-
-	client := http.Client{}
-	resp, err := client.Do(req)
-	if err != nil {
-		return movies.GetAPI{}, err
-	}
-
-	defer resp.Body.Close()
-	bodyBytes, _ := ioutil.ReadAll(resp.Body)
-
-	json.Unmarshal(bodyBytes, &movie)
-
-	return movie.ToDomainAPI(), nil
-}
-
-func (rep *MysqlMovieRepository) CreateMovieAPI(ctx context.Context, Title string, Year string, ImdbId string, Type string, Poster string, Genre []movies.Genre, Writer string, Actors string) (movies.Movie, error) {
-	movie := Movies{
-		Title:  Title,
-		Year:   Year,
-		ImdbId: ImdbId,
-		Type:   Type,
-		Poster: Poster,
-		Genre:  Genre,
-		Writer: Writer,
-		Actors: Actors,
-	}
-
-	result := rep.Connect.Create(&movie)
+	result := rep.Connect.Create(&tes)
 	if result.Error != nil {
 		return movies.Movie{}, result.Error
 	}
 
-	return movie.ToDomainMovie(), nil
+	return tes.ToDomainMovie(), nil
 }
 
 func (rep *MysqlMovieRepository) MovieDetail(ctx context.Context, id int) (movies.Movie, error) {
 	var movie Movies
+	// var Rating []ratings.Ratings
+	// res := rep.Connect.Where("MovieId = ?", id).Find(Rating)
+	// if res.Error != nil {
+	// 	return movies.Movie{}, res.Error
+	// }
+	var total float32
 
-	result := rep.Connect.First(&movie, "id= ?", id)
+	result := rep.Connect.Preload("Genre").Preload("Ratings.User").First(&movie, "id= ?", id)
 	if result.Error != nil {
 		return movies.Movie{}, result.Error
 	}
-	res := rep.Connect.Preload("Genre").Find(&movie)
-	if res.Error != nil {
-		return movies.Movie{}, res.Error
+	for _, v := range movie.Ratings {
+		total += v.Rate
 	}
+	movie.Rating = total / float32(len(movie.Ratings))
+	// movie.Ratings = (Ratings.Rate / len(Rating))
 	return movie.ToDomainMovie(), nil
-}
-
-func (rep *MysqlMovieRepository) ScanGenre(ctx context.Context, name string) (movies.Genre, error) {
-	var genre Genres
-	genre.Name = name
-	result := rep.Connect.FirstOrCreate(&genre, "Name= ?", name)
-
-	if result.Error != nil {
-		return movies.Genre{}, result.Error
-	}
-
-	return genre.ToDomainGenre(), nil
 }
 
 func (rep *MysqlMovieRepository) SearchMovie(ctx context.Context, title string) ([]movies.Movie, error) {
@@ -98,17 +73,17 @@ func (rep *MysqlMovieRepository) SearchMovie(ctx context.Context, title string) 
 
 	fmt.Println(title)
 
-	result := rep.Connect.Where("title LIKE ?", title+"%").Find(&movie)
+	result := rep.Connect.Preload("Genre").Preload("Ratings.User").Where("title LIKE ?", title+"%").Find(&movie)
 	if result.Error != nil {
 		return []movies.Movie{}, result.Error
 	}
 
-	result = rep.Connect.Where("title LIKE ?", title+"%").Find(&movie)
+	result = rep.Connect.Preload("Genre").Preload("Ratings.User").Where("title LIKE ?", title+"%").Find(&movie)
 	if result.Error != nil {
 		return []movies.Movie{}, result.Error
 	}
 
-	result = rep.Connect.Where("title LIKE ?", "%"+title+"%").Find(&movie)
+	result = rep.Connect.Preload("Genre").Preload("Ratings.User").Where("title LIKE ?", "%"+title+"%").Find(&movie)
 	if result.Error != nil {
 		return []movies.Movie{}, result.Error
 	}
@@ -125,44 +100,12 @@ func (rep *MysqlMovieRepository) FilterGenre(ctx context.Context, genre string) 
 	// 	return []movies.Movie{}, result.Error
 	// }
 	// result := rep.Connect.Preload("Genre").Where("id IN (SELECT movies_id FROM movie_genres WHERE name IN ?)", []string{genre}).Find(&movie)
-	result := rep.Connect.Preload("Genre").
+	result := rep.Connect.Preload("Genre").Preload("Ratings.User").
 		Joins("JOIN movie_genres on movie_genres.movies_id = movies.id JOIN genres on movie_genres.genre_id = genres.id AND genres.name = ? ",
 			genre).Find(&movie)
 	if result.Error != nil {
 		return []movies.Movie{}, result.Error
 	}
-	// result = rep.Connect.Find(&movie)
-	// if result.Error != nil {
-	// 	return []movies.Movie{}, result.Error
-	// }
-
-	// for i, v := range movie {
-	// 	for _, n := range v.Genre {
-	// 		if n.Name == Genre {
-	// 		FilterGenre = append(FilterGenre, []movies.Movie{})
-	// 		}
-	// 	}
-	// }
-
-	// result = rep.Connect.Not("Genre = ?", ]).Find(&movie)
-	// if result.Error != nil {
-	// 	return []movies.Movie{}, result.Error
-	// }
-	// // result := rep.Connect.Joins("Genre").First(&movie, "genre.name = ?", genre)
-	// if result.Error != nil {
-	// 	return []movies.Movie{}, result.Error
-	// }
-	// q := rep.Connect.Where("Genre = ?", Genre).Find(&movie)
-	// // q := rep.Connect.Where("Genre__name", genre).Find(&movie)
-	// if q.Error != nil {
-	// 	return []movies.Movie{}, q.Error
-	// }
-	// fmt.Println(genre)
-	// fmt.Println(result)
-	// if result.Error != nil {
-	// 	return []movies.Movie{}, result.Error
-	// }
-
 	return ToListDomain(movie), nil
 }
 func (rep *MysqlMovieRepository) FilterOrder(ctx context.Context, order string) ([]movies.Movie, error) {
@@ -173,12 +116,12 @@ func (rep *MysqlMovieRepository) FilterOrder(ctx context.Context, order string) 
 	// 	return []movies.Movie{}, res.Error
 	// }
 	if order == "Terlama" {
-		result := rep.Connect.Preload("Genre").Find(&movie)
+		result := rep.Connect.Preload("Genre").Preload("Ratings.User").Find(&movie)
 		if result.Error != nil {
 			return []movies.Movie{}, result.Error
 		}
 	} else {
-		result := rep.Connect.Preload("Genre").Order("id desc").Find(&movie)
+		result := rep.Connect.Preload("Genre").Preload("Ratings.User").Order("id desc").Find(&movie)
 		if result.Error != nil {
 			return []movies.Movie{}, result.Error
 		}
@@ -188,7 +131,7 @@ func (rep *MysqlMovieRepository) FilterOrder(ctx context.Context, order string) 
 
 func (rep *MysqlMovieRepository) GetAllMovie(ctx context.Context) ([]movies.Movie, error) {
 	var movie []Movies
-	result := rep.Connect.Preload("Genre").Find(&movie)
+	result := rep.Connect.Preload("Genre").Preload("Ratings.User").Find(&movie)
 	if result.Error != nil {
 		return []movies.Movie{}, result.Error
 	}
@@ -223,8 +166,9 @@ func (rep *MysqlMovieRepository) DeleteMovie(ctx context.Context, id int) (movie
 	return movie.ToDomainMovie(), nil
 }
 
-func (rep *MysqlMovieRepository) UpdateMovie(ctx context.Context, id int, Title string, Type string) error {
-	result := rep.Connect.Where("id = ?", id).Updates(&Movies{Title: Title, Type: Type})
+func (rep *MysqlMovieRepository) UpdateMovie(ctx context.Context, domain movies.Movie) error {
+	movie := FromDomain(domain)
+	result := rep.Connect.Where("id = ?", movie.Id).Updates(&Movies{Title: movie.Title, Type: movie.Type})
 
 	if result.Error != nil {
 		return result.Error

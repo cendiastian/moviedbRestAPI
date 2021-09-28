@@ -55,14 +55,13 @@ func (SubcriptionController SubcriptionController) Delete(c echo.Context) error 
 	if err != nil {
 		return controllers.NewErrorResponse(c, http.StatusInternalServerError, err)
 	}
-
 	ctx := c.Request().Context()
-	subs, err := SubcriptionController.SubcriptionUC.Delete(ctx, Id)
+	_, err = SubcriptionController.SubcriptionUC.Delete(ctx, Id)
 	if err != nil {
 		return controllers.NewErrorResponse(c, http.StatusInternalServerError, err)
 	}
 
-	return controllers.NewSuccesResponse(c, responses.FromDomain(subs))
+	return controllers.UpdateSuccesResponse(c, "Berhasil Menghapus Data Subscription")
 }
 
 func (SubcriptionController SubcriptionController) Update(c echo.Context) error {
@@ -71,12 +70,13 @@ func (SubcriptionController SubcriptionController) Update(c echo.Context) error 
 	c.Bind(&Update)
 
 	ctx := c.Request().Context()
+
 	err := SubcriptionController.SubcriptionUC.Update(ctx, Update.ToDomain())
 	if err != nil {
 		return controllers.NewErrorResponse(c, http.StatusInternalServerError, err)
 	}
 
-	return controllers.UpdateSuccesResponse(c, "Berhasil Merubah Data User")
+	return controllers.UpdateSuccesResponse(c, "Berhasil Merubah Data Subscription")
 }
 
 func (SubcriptionController SubcriptionController) Createsubcription(c echo.Context) error {

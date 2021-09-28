@@ -1,6 +1,7 @@
 package users
 
 import (
+	"context"
 	"fmt"
 	"net/http"
 	"project/ca/business/users"
@@ -106,4 +107,13 @@ func (UserController UserController) Register(c echo.Context) error {
 	}
 
 	return controllers.NewSuccesResponse(c, responses.FromDomain(user))
+}
+
+func (UserController UserController) UserRole(id int) string {
+	role := ""
+	user, err := UserController.UserUC.UserDetail(context.Background(), id)
+	if err == nil {
+		role = user.Name
+	}
+	return role
 }

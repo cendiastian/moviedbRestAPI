@@ -1,6 +1,6 @@
 package requests
 
-import "project/ca/business/transactions"
+import "project/ca/business/payments"
 
 type Update struct {
 	Id     int    `json:"id"`
@@ -8,8 +8,8 @@ type Update struct {
 	Status int    `json:"status"`
 }
 
-func (pay *Update) ToDomain() transactions.Payment_method {
-	return transactions.Payment_method{
+func (pay *Update) ToDomain() payments.Payment_method {
+	return payments.Payment_method{
 		Id:     pay.Id,
 		Name:   pay.Name,
 		Status: pay.Status,

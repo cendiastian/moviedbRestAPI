@@ -21,43 +21,47 @@ func NewRateUsecase(repo Repository, timeout time.Duration) Usecase {
 	}
 }
 
-// func (uc *RateUseCase) GetAll(c context.Context) ([]Rating, error) {
+// func (uc *RateUseCase) GetAllRate(c context.Context, id int) (Ratings, error) {
 // 	ctx, error := context.WithTimeout(c, uc.contextTimeout)
 // 	defer error()
 
-// 	Rate, err := uc.Repo.GetAll(ctx)
+// 	Rate, err := uc.Repo.GetAllRate(ctx, id)
 // 	if err != nil {
-// 		return []Rating{}, err
+// 		return Ratings{}, err
 // 	}
 
 // 	return Rate, nil
 // }
 
-// func (uc *RateUseCase) Detail(c context.Context, id int) (res Rating, err error) {
-// 	ctx, error := context.WithTimeout(c, uc.contextTimeout)
-// 	defer error()
-// 	Sub, err := uc.Repo.Detail(ctx, id)
-// 	if err != nil {
-// 		return Rating{}, err
-// 	}
-// 	return Sub, nil
-// }
+func (uc *RateUseCase) Detail(c context.Context, movie int, user int) (res Ratings, err error) {
+	ctx, error := context.WithTimeout(c, uc.contextTimeout)
+	defer error()
+	rate, err := uc.Repo.Detail(ctx, movie, user)
+	if err != nil {
+		return Ratings{}, err
+	}
+	return rate, nil
+}
 
-func (uc *RateUseCase) Delete(c context.Context, domain Rating) error {
+func (uc *RateUseCase) Delete(c context.Context, domain Ratings) error {
 
-	if domain.Movie_Id == 0 {
+	if domain.MovieId == 0 {
 		return errors.New("mohon isi ID Movie")
 	}
-	if domain.User_Id == 0 {
+	if domain.UserId == 0 {
 		return errors.New("mohon isi ID User")
 	}
 
 	ctx, cancel := context.WithTimeout(c, uc.contextTimeout)
 	defer cancel()
 
+	_, err := uc.Repo.Detail(ctx, domain.MovieId, domain.UserId)
+	if err != nil {
+		return err
+	}
 	domain.UpdatedAt = time.Now()
 
-	err := uc.Repo.Update(ctx, domain.Movie_Id, domain.User_Id, domain.Rate)
+	err = uc.Repo.Delete(ctx, domain.MovieId, domain.UserId)
 	if err != nil {
 		return err
 	}
@@ -65,21 +69,24 @@ func (uc *RateUseCase) Delete(c context.Context, domain Rating) error {
 	return nil
 }
 
-func (uc *RateUseCase) Update(c context.Context, domain Rating) error {
+func (uc *RateUseCase) Update(c context.Context, domain Ratings) error {
 
-	if domain.Movie_Id == 0 {
+	if domain.MovieId == 0 {
 		return errors.New("mohon isi ID Movie")
 	}
-	if domain.User_Id == 0 {
+	if domain.UserId == 0 {
 		return errors.New("mohon isi ID User")
 	}
 
 	ctx, error := context.WithTimeout(c, uc.contextTimeout)
 	defer error()
-
+	_, err := uc.Repo.Detail(ctx, domain.MovieId, domain.UserId)
+	if err != nil {
+		return err
+	}
 	domain.UpdatedAt = time.Now()
 
-	err := uc.Repo.Update(ctx, domain.Movie_Id, domain.User_Id, domain.Rate)
+	err = uc.Repo.Update(ctx, domain)
 	if err != nil {
 		return err
 	}
@@ -88,16 +95,16 @@ func (uc *RateUseCase) Update(c context.Context, domain Rating) error {
 
 }
 
-func (uc *RateUseCase) Create(c context.Context, domain Rating) (Rating, error) {
+func (uc *RateUseCase) Create(c context.Context, domain Ratings) (Ratings, error) {
 
-	if domain.Movie_Id == 0 {
-		return Rating{}, errors.New("mohon isi ID Movie")
+	if domain.MovieId == 0 {
+		return Ratings{}, errors.New("mohon isi ID Movie")
 	}
-	if domain.User_Id == 0 {
-		return Rating{}, errors.New("mohon isi ID User")
+	if domain.UserId == 0 {
+		return Ratings{}, errors.New("mohon isi ID User")
 	}
 	if domain.Rate == 0 {
-		return Rating{}, errors.New("mohon isi Rating")
+		return Ratings{}, errors.New("mohon isi Ratings")
 	}
 
 	ctx, error := context.WithTimeout(c, uc.contextTimeout)
@@ -105,9 +112,9 @@ func (uc *RateUseCase) Create(c context.Context, domain Rating) (Rating, error) 
 
 	domain.UpdatedAt = time.Now()
 
-	Rate, err := uc.Repo.Create(ctx, domain.Movie_Id, domain.User_Id, domain.Rate)
+	Rate, err := uc.Repo.Create(ctx, domain)
 	if err != nil {
-		return Rating{}, err
+		return Ratings{}, err
 	}
 
 	return Rate, nil
