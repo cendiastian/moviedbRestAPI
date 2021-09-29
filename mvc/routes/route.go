@@ -1,9 +1,9 @@
 package routes
 
 import (
-	"project/mvc/constants"
-	"project/mvc/controllers/movies"
-	"project/mvc/controllers/users"
+	"project/constants"
+	"project/controllers/movies"
+	"project/controllers/users"
 
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"

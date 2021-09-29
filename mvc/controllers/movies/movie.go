@@ -2,12 +2,13 @@ package movies
 
 import (
 	"fmt"
-	"project/mvc/config"
-	"project/mvc/model/movie"
-	"project/mvc/model/response"
+	"project/config"
+	"project/model/movie"
+	"project/model/response"
 
 	"strings"
 
+	// "project/routes"
 	// "strconv"
 	// "log"
 	"encoding/json"
@@ -25,6 +26,7 @@ func CreateMovie(c echo.Context) error {
 
 	query := req.URL.Query()
 	query.Add("s", searchTerm)
+	fmt.Println(query)
 	req.URL.RawQuery = query.Encode()
 
 	client := http.Client{}
@@ -39,39 +41,27 @@ func CreateMovie(c echo.Context) error {
 	json.Unmarshal(bodyBytes, &createAllMovie)
 
 	var movieDB movie.Movie
-	var Allmovie []movie.Movie
+
 	for _, v := range createAllMovie.Search {
-		res := config.DB.Find(&Allmovie)
-		movieDB = movie.Movie{
-			Title:    v.Title,
-			Year:     v.Year,
-			Poster:   v.Poster,
-			ImdbId:   v.ImdbId,
-			Type:     v.Type,
-			Actors:   v.Actors,
-			Director: v.Director,
-			Plot:     v.Plot,
-			Writer:   v.Writer,
-			// Genre: []movie.Category,
-		}
+		res := config.DB.Find(&movieDB)
+
+		movieDB.Title = v.Title
+		movieDB.Year = v.Year
+		movieDB.Poster = v.Poster
+		movieDB.ImdbId = v.ImdbId
+		movieDB.Type = v.Type
+		movieDB.Actors = v.Actors
+		movieDB.Director = v.Director
+		movieDB.Plot = v.Plot
+		movieDB.Writer = v.Writer
 		// movieDB.Genre = createMovie.Genre
-		// count := config.DB.Last(&movieDB)
 		if res != nil {
-			sameTitle := config.DB.Raw("SELECT * FROM `movies` WHERE Title = ? LIMIT 1 ", movieDB.Title).Scan(&movieDB)
-			if sameTitle.RowsAffected == 0 {
-				movieDB.ID = int(res.RowsAffected + 1)
-				result := config.DB.Create(&movieDB)
-				if result.Error != nil {
-					return c.JSON(http.StatusInternalServerError, response.Response{
-						Code:    http.StatusInternalServerError,
-						Message: "Error ketika input data category ke config.DB",
-						Data:    nil,
-					})
-				}
-			} else {
-				return c.JSON(http.StatusBadRequest, response.Response{
-					Code:    http.StatusBadRequest,
-					Message: "Movie sudah ada",
+			movieDB.ID = (int(res.RowsAffected + 1))
+			result := config.DB.Create(&movieDB)
+			if result.Error != nil {
+				return c.JSON(http.StatusInternalServerError, response.Response{
+					Code:    http.StatusInternalServerError,
+					Message: "Error ketika input data category ke config.DB",
 					Data:    nil,
 				})
 			}
@@ -96,12 +86,14 @@ func CreateMovie(c echo.Context) error {
 
 func GetDetailFromAPI(c echo.Context) error {
 	title := (c.Param("title"))
+
 	var GetDetail movie.GetDetail
 
 	req, _ := http.NewRequest("GET", "http://www.omdbapi.com/?apikey=8b8a25e8&", nil)
 
 	query := req.URL.Query()
 	query.Add("t", title)
+	fmt.Println(query)
 	req.URL.RawQuery = query.Encode()
 
 	client := http.Client{}
@@ -114,58 +106,25 @@ func GetDetailFromAPI(c echo.Context) error {
 	bodyBytes, _ := ioutil.ReadAll(resp.Body)
 
 	json.Unmarshal(bodyBytes, &GetDetail)
-
-	var movieDB movie.Movie
+	//membuat category jika belum ada
 	var categoryDB movie.Category
-	// var category []movie.Categor
-	GenreName := strings.Split(GetDetail.Genre, ", ")
-	fmt.Println(GenreName)
-	for _, v := range GenreName {
-		fmt.Println(v)
-		// res := config.DB.FirstOrCreate(&categoryDB, movie.Category{Name: v})
-		// res := config.DB.Where("Name = ?", v).First(&categoryDB)
-		res := config.DB.Raw("SELECT * FROM `categories`WHERE Name = ? LIMIT 1 ", v).Scan(&categoryDB)
-		fmt.Println(res)
-		// if errors.Is(res.Error, gorm.ErrRecordNotFound) {
-		if res.RowsAffected == 0 {
-			// config.DB.Raw("SELECT id FROM `categories` ORDER BY `categories`.`id` DESC").Scan(&categoryDB)
-			categoryDB = movie.Category{
-				Name: v,
-				// ID:   +1,
+	Genre := strings.Split(GetDetail.Genre, ",")
+	for _, v := range Genre {
+		result := config.DB.Find(&categoryDB)
+		categoryDB.Name = string(v)
+		if result != nil {
+			res := config.DB.Where("Name = ?", v).First(&categoryDB)
+			if res != nil {
+				continue
 			}
-			// categoryDB.Name = v
-			// categoryDB.ID += 1
-			fmt.Println(categoryDB)
+			categoryDB.ID = int(result.RowsAffected + 1)
 			config.DB.Create(&categoryDB)
-			movieDB.Genre = append(movieDB.Genre, categoryDB)
 		} else {
-			fmt.Println(categoryDB)
-			movieDB.Genre = append(movieDB.Genre, categoryDB)
+			config.DB.Create(&categoryDB)
 		}
-		// if res != nil {
-		// 	fmt.Println(categoryDB)
-		// 	category = append(category, categoryDB)
-		// } else {
-		// 	config.DB.Create(Genre)
-		// 	fmt.Println(Genre)
-		// 	category = append(category, Genre)
-		// }
-		fmt.Println(movieDB.Genre)
 	}
-
 	// update
-	res := config.DB.Where("Title = ?", GetDetail.Title).First(&movieDB)
-	fmt.Println(res)
-	movieDB = movie.Movie{
-		Director: GetDetail.Director,
-		Writer:   GetDetail.Writer,
-		Actors:   GetDetail.Actors,
-		Plot:     GetDetail.Plot,
-		Genre:    movieDB.Genre,
-	}
-	// movieDB.ID = config.DB.Raw("SELECT id FROM `movies` WHERE Title = ?", GetDetail.Title).Scan(&movieDB.ID)
-	// config.DB.Raw("SELECT id FROM `movies` WHERE Title = ?", GetDetail.Title).Scan(&movieDB.ID)
-	result := config.DB.Where("id = ?", movieDB.ID).Save(&movieDB)
+	result := config.DB.Model(&movie.Movie{}).Where("Title = ?", GetDetail.Title).Updates(movie.Movie{Director: GetDetail.Director, Writer: GetDetail.Writer, Actors: GetDetail.Actors, Plot: GetDetail.Plot})
 	if result.Error != nil {
 		return c.JSON(http.StatusInternalServerError, response.Response{
 			Code:    http.StatusInternalServerError,
@@ -179,3 +138,26 @@ func GetDetailFromAPI(c echo.Context) error {
 		Data:    GetDetail,
 	})
 }
+
+// category := strings.Split(createMovie.Genre, ",")
+// var categoryName []*gorm.DB
+// type Result struct {
+// 	Name string
+//   }
+// var ress Result
+// for _, v := range category {
+// 	result := config.DB.Find(&categoryDB)
+// 	categoryDB.Name = v
+// 	config.DB.Table("category").Select("name").Scan(&ress)
+// 	if result != nil {
+// 		ress := config.DB.Where("name = ?", v).First(&categoryDB)
+// 		if ress.Name == v{
+// 			continue
+// 		}
+// 		categoryDB.ID = int(result.RowsAffected)
+// 		config.DB.Create(&categoryDB)
+// 	} else {
+// 		// fmt.Println(categoryDB)
+// 		config.DB.Create(&categoryDB)
+// 	}
+// }
