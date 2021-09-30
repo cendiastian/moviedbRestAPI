@@ -89,8 +89,9 @@ func (uc *Usecases) MovieDetail(c context.Context, id int) (res Movie, err error
 	// if err != nil {
 	// 	return []Movie{}, err
 	// }
-
+	fmt.Println(id)
 	movie, err := uc.Repo.MovieDetail(ctx, id)
+	// fmt.Println(movie)
 	if err != nil {
 		return Movie{}, err
 	}

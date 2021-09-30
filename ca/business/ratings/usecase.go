@@ -3,6 +3,7 @@ package ratings
 import (
 	"context"
 	"errors"
+	"fmt"
 	"project/ca/app/middlewares"
 	"time"
 )
@@ -33,10 +34,10 @@ func NewRateUsecase(repo Repository, timeout time.Duration) Usecase {
 // 	return Rate, nil
 // }
 
-func (uc *RateUseCase) Detail(c context.Context, movie int, user int) (res Ratings, err error) {
+func (uc *RateUseCase) Detail(c context.Context, domain Ratings) (res Ratings, err error) {
 	ctx, error := context.WithTimeout(c, uc.contextTimeout)
 	defer error()
-	rate, err := uc.Repo.Detail(ctx, movie, user)
+	rate, err := uc.Repo.Detail(ctx, domain.MovieId, domain.UserId)
 	if err != nil {
 		return Ratings{}, err
 	}
@@ -46,9 +47,11 @@ func (uc *RateUseCase) Detail(c context.Context, movie int, user int) (res Ratin
 func (uc *RateUseCase) Delete(c context.Context, domain Ratings) error {
 
 	if domain.MovieId == 0 {
+		fmt.Println("movie err")
 		return errors.New("mohon isi ID Movie")
 	}
 	if domain.UserId == 0 {
+		fmt.Println("user err")
 		return errors.New("mohon isi ID User")
 	}
 
