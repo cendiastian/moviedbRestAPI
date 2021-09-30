@@ -27,22 +27,12 @@ func (subs *Transaction) ToDomainTransaction() transactions.Transaction {
 	return transactions.Transaction{
 		Id:                subs.Id,
 		Payment_method_id: subs.Payment_method_id,
-		Payment:           subs.Payment_method.Name,
+		Payment:           subs.Payment_method.ToDomain(),
 		User_Id:           subs.User_Id,
 		// Username: subs.User.Name,
 		Plan_Id:           subs.Plan_Id,
-		Subscription_Plan: subs.Subscription_Plan.Name,
+		Subscription_Plan: subs.Subscription_Plan.ToDomain(),
 		Price:             subs.Subscription_Plan.Price,
-		CreatedAt:         subs.CreatedAt,
-		UpdatedAt:         subs.UpdatedAt,
-	}
-}
-func (subs *Transaction) ToDomainTransDetail() transactions.Transaction {
-	return transactions.Transaction{
-		Id:                subs.Id,
-		Payment_method_id: subs.Payment_method_id,
-		User_Id:           subs.User_Id,
-		Plan_Id:           subs.Plan_Id,
 		CreatedAt:         subs.CreatedAt,
 		UpdatedAt:         subs.UpdatedAt,
 	}

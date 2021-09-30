@@ -63,9 +63,10 @@ func (MovieController MovieController) MovieDetail(c echo.Context) error {
 	}
 
 	ctx := c.Request().Context()
-
 	movie, err := MovieController.MovieUC.MovieDetail(ctx, Id)
+	// fmt.Println(movie)
 	if err != nil {
+		fmt.Println("error")
 		return controllers.NewErrorResponse(c, http.StatusInternalServerError, err)
 	}
 
@@ -82,7 +83,7 @@ func (MovieController MovieController) SearchMovie(c echo.Context) error {
 		return controllers.NewErrorResponse(c, http.StatusInternalServerError, err)
 	}
 
-	return controllers.NewSuccesResponse(c, responses.ToListDomain(movie))
+	return controllers.NewSuccesResponse(c, responses.ToListDomainSearch(movie))
 }
 
 func (MovieController MovieController) FilterOrder(c echo.Context) error {
@@ -96,7 +97,7 @@ func (MovieController MovieController) FilterOrder(c echo.Context) error {
 		return controllers.NewErrorResponse(c, http.StatusInternalServerError, err)
 	}
 
-	return controllers.NewSuccesResponse(c, responses.ToListDomain(movie))
+	return controllers.NewSuccesResponse(c, responses.ToListDomainSearch(movie))
 }
 
 func (MovieController MovieController) FilterGenre(c echo.Context) error {
@@ -109,7 +110,7 @@ func (MovieController MovieController) FilterGenre(c echo.Context) error {
 		return controllers.NewErrorResponse(c, http.StatusInternalServerError, err)
 	}
 
-	return controllers.NewSuccesResponse(c, responses.ToListDomain(movie))
+	return controllers.NewSuccesResponse(c, responses.ToListDomainSearch(movie))
 }
 
 func (MovieController MovieController) DeleteAll(c echo.Context) error {
@@ -148,7 +149,7 @@ func (MovieController MovieController) GetAllMovie(c echo.Context) error {
 		return controllers.NewErrorResponse(c, http.StatusInternalServerError, err)
 	}
 
-	return controllers.NewSuccesResponse(c, responses.ToListDomain(movie))
+	return controllers.NewSuccesResponse(c, responses.ToListDomainSearch(movie))
 }
 
 func (MovieController MovieController) UpdateMovie(c echo.Context) error {

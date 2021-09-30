@@ -19,7 +19,7 @@ func NewMysqlRatingRepository(connect *gorm.DB) ratings.Repository {
 
 func (rep *MysqlRatingRepository) Delete(ctx context.Context, MovieId int, UserId int) error {
 	var Rating Ratings
-	result := rep.Connect.Delete(&Rating, "movieid = ? AND userid", MovieId, UserId)
+	result := rep.Connect.Delete(&Rating, "movie_id = ? AND user_id", MovieId, UserId)
 
 	if result.Error != nil {
 		return result.Error
@@ -30,7 +30,7 @@ func (rep *MysqlRatingRepository) Delete(ctx context.Context, MovieId int, UserI
 
 func (rep *MysqlRatingRepository) Update(ctx context.Context, domain ratings.Ratings) error {
 	Rating := FromDomain(domain)
-	result := rep.Connect.Where("movieid = ? AND userid", Rating.MovieId, Rating.UserId).Updates(&Ratings{Rate: Rating.Rate})
+	result := rep.Connect.Where("movie_id = ? AND user_id", Rating.MovieId, Rating.UserId).Updates(&Ratings{Rate: Rating.Rate})
 
 	if result.Error != nil {
 		return result.Error
@@ -41,7 +41,7 @@ func (rep *MysqlRatingRepository) Update(ctx context.Context, domain ratings.Rat
 
 func (rep *MysqlRatingRepository) Create(ctx context.Context, domain ratings.Ratings) (ratings.Ratings, error) {
 	Rating := FromDomain(domain)
-	result := rep.Connect.Create(&Rating)
+	result := rep.Connect.Preload("User").Create(&Rating)
 
 	if result.Error != nil {
 		return ratings.Ratings{}, result.Error
@@ -52,7 +52,7 @@ func (rep *MysqlRatingRepository) Create(ctx context.Context, domain ratings.Rat
 
 func (rep *MysqlRatingRepository) Detail(ctx context.Context, movie int, user int) (ratings.Ratings, error) {
 	var pay Ratings
-	result := rep.Connect.Preload("MovieId").First(&pay, "MovieId= ? AND UserId  = ? ", movie, user)
+	result := rep.Connect.Preload("User").First(&pay, "movie_id= ? AND user_id  = ? ", movie, user)
 	if result.Error != nil {
 		return ratings.Ratings{}, result.Error
 	}

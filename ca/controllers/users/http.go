@@ -32,11 +32,11 @@ func (userController UserController) Login(c echo.Context) error {
 	ctx := c.Request().Context()
 	// user, err := userController.UserUC.Login(ctx, userLogin.Email, userLogin.Password)
 	user, err := userController.UserUC.Login(ctx, userLogin.ToDomain())
-
+	fmt.Println(user.Token)
 	if err != nil {
 		return controllers.NewErrorResponse(c, http.StatusInternalServerError, err)
 	}
-	return controllers.NewSuccesResponse(c, responses.FromDomain(user))
+	return controllers.NewSuccesResponse(c, responses.FromDomainLogin(user))
 }
 
 func (UserController UserController) UserDetail(c echo.Context) error {

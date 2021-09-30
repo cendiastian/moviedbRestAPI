@@ -2,22 +2,24 @@ package responses
 
 import (
 	"project/ca/business/ratings"
+	_user "project/ca/controllers/users/responses"
 	"time"
 )
 
 type RatingResponse struct {
-	MovieId   int       `json:"MovieId"`
-	Username  string    `json:"Username"`
-	UserId    int       `json:"UserId"`
-	Rate      float32   `json:"Rate"`
-	CreatedAt time.Time `json:"createdAt"`
-	UpdatedAt time.Time `json:"updatedAt"`
+	// MovieId int `json:"movie"`
+	// UserId    int       `json:"UserId"`
+	User      _user.UserResponse `json:"user"`
+	Rate      float32            `json:"rating"`
+	CreatedAt time.Time          `json:"createdAt"`
+	UpdatedAt time.Time          `json:"updatedAt"`
 }
 
 func FromDomain(domain ratings.Ratings) RatingResponse {
 	return RatingResponse{
-		MovieId:   domain.MovieId,
-		Username:  domain.Username,
+		// MovieId: domain.MovieId,
+		// UserId:    domain.UserId,
+		User:      _user.FromDomain(domain.User),
 		Rate:      domain.Rate,
 		CreatedAt: domain.CreatedAt,
 		UpdatedAt: domain.UpdatedAt,

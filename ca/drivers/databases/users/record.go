@@ -20,7 +20,7 @@ type Users struct {
 	DeletedAt gorm.DeletedAt `gorm:"index"`
 }
 
-func (user *Users) ToDomain() users.User {
+func (user *Users) ToDomainUser() users.User {
 	return users.User{
 		Id:          user.Id,
 		Name:        user.Name,
@@ -36,7 +36,7 @@ func (user *Users) ToDomain() users.User {
 func ToListDomain(data []Users) (result []users.User) {
 	result = []users.User{}
 	for _, user := range data {
-		result = append(result, user.ToDomain())
+		result = append(result, user.ToDomainUser())
 	}
 	return
 }

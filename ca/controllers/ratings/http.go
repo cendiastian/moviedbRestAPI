@@ -6,7 +6,6 @@ import (
 	"project/ca/controllers"
 	"project/ca/controllers/ratings/requests"
 	"project/ca/controllers/ratings/responses"
-	"strconv"
 
 	"github.com/labstack/echo/v4"
 )
@@ -82,17 +81,11 @@ func (RatingController RatingController) Create(c echo.Context) error {
 func (RatingController RatingController) Detail(c echo.Context) error {
 	// fmt.Println("UserDetail")
 
-	Movie, err := strconv.Atoi(c.Param("Movie"))
-	if err != nil {
-		return controllers.NewErrorResponse(c, http.StatusInternalServerError, err)
-	}
-	User, err := strconv.Atoi(c.Param("User"))
-	if err != nil {
-		return controllers.NewErrorResponse(c, http.StatusInternalServerError, err)
-	}
+	RatingDelete := requests.RatingDelete{}
+	c.Bind(&RatingDelete)
 
 	ctx := c.Request().Context()
-	trans, err := RatingController.RateUC.Detail(ctx, Movie, User)
+	trans, err := RatingController.RateUC.Detail(ctx, RatingDelete.ToDomain())
 	if err != nil {
 		return controllers.NewErrorResponse(c, http.StatusInternalServerError, err)
 	}

@@ -23,7 +23,7 @@ func (rate *Ratings) ToDomain() ratings.Ratings {
 	return ratings.Ratings{
 		MovieId:   rate.MovieId,
 		UserId:    rate.UserId,
-		Username:  rate.User.Name,
+		User:      rate.User.ToDomainUser(),
 		Rate:      rate.Rate,
 		CreatedAt: rate.CreatedAt,
 		UpdatedAt: rate.UpdatedAt,
