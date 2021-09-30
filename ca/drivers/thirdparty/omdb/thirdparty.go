@@ -7,24 +7,28 @@ import (
 	"io/ioutil"
 	"net/http"
 	"project/ca/business/omdb"
-
-	"gorm.io/gorm"
 )
 
-type MysqlAPIRepository struct {
-	httpClient http.Client
+type Omdb struct {
+	Client http.Client
+	Url    string
+	Key    string
+	Symbol string
 }
 
-func NewMysqlAPIRepository(connect *gorm.DB) omdb.Repository {
-	return &MysqlAPIRepository{
-		httpClient: http.Client{},
+func NewOmdbAPI(api Omdb) *Omdb {
+	return &Omdb{
+		Client: http.Client{},
+		Url:    api.Url,
+		Key:    api.Key,
+		Symbol: api.Symbol,
 	}
 }
 
-func (rep *MysqlAPIRepository) GetAPI(ctx context.Context, ImdbId string) (omdb.GetAPI, error) {
+func (api *Omdb) GetAPI(ctx context.Context, ImdbId string) (omdb.GetAPI, error) {
 	var movie GetMovieAPI
 	fmt.Println(ImdbId)
-	req, err := http.NewRequest("GET", "http://www.omdbapi.com/?apikey=8b8a25e8&", nil)
+	req, err := http.NewRequest("GET", api.Url+api.Key+api.Symbol, nil)
 	if err != nil {
 		return omdb.GetAPI{}, err
 	}
