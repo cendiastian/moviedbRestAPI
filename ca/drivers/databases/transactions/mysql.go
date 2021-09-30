@@ -34,7 +34,7 @@ func (rep *MysqlTransRepository) CreateTransaction(ctx context.Context, domain t
 func (rep *MysqlTransRepository) DetailTrans(ctx context.Context, id int) (transactions.Transaction, error) {
 	var trans Transaction
 	// var subs subscription.SubcriptionPlan
-	result := rep.Connect.Preload("Payment_method").Preload("User").Preload("Subscription_Plan").Where("Id = ?", id).First(&trans)
+	result := rep.Connect.Preload("Payment_method").Preload("Subscription_Plan").Where("Id = ?", id).First(&trans)
 
 	if result.Error != nil {
 		return transactions.Transaction{}, result.Error

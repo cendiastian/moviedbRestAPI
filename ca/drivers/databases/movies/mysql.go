@@ -5,7 +5,6 @@ import (
 	"fmt"
 	_genre_b "project/ca/business/genres"
 	"project/ca/business/movies"
-	_genre_d "project/ca/drivers/databases/genres"
 
 	// "project/ca/drivers/databases/ratings"
 
@@ -24,27 +23,27 @@ func NewMysqlMovieRepository(connect *gorm.DB) movies.Repository {
 
 func (rep *MysqlMovieRepository) CreateMovie(ctx context.Context, domain movies.Movie, array []_genre_b.Genre) (movies.Movie, error) {
 	movie := FromDomain(domain)
-	genre := _genre_d.FromListDomainGenre(array)
+	// genre := _genre_d.FromListDomainGenre(array)
 	// var tes Movies
-	tes := Movies{
-		Id:      movie.Id,
-		Title:   movie.Title,
-		Year:    movie.Year,
-		ImdbId:  movie.ImdbId,
-		Type:    movie.Type,
-		Poster:  movie.Poster,
-		Genre:   genre,
-		Ratings: movie.Ratings,
-		Rating:  movie.Rating,
-		Writer:  movie.Writer,
-		Actors:  movie.Actors,
-	}
-	result := rep.Connect.Create(&tes)
+	// tes := Movies{
+	// 	Id:      movie.Id,
+	// 	Title:   movie.Title,
+	// 	Year:    movie.Year,
+	// 	ImdbId:  movie.ImdbId,
+	// 	Type:    movie.Type,
+	// 	Poster:  movie.Poster,
+	// 	Genre:   genre,
+	// 	Ratings: movie.Ratings,
+	// 	Rating:  movie.Rating,
+	// 	Writer:  movie.Writer,
+	// 	Actors:  movie.Actors,
+	// }
+	result := rep.Connect.Create(&movie)
 	if result.Error != nil {
 		return movies.Movie{}, result.Error
 	}
 
-	return tes.ToDomainMovie(), nil
+	return movie.ToDomainMovie(), nil
 }
 
 func (rep *MysqlMovieRepository) MovieDetail(ctx context.Context, id int) (movies.Movie, error) {
@@ -58,6 +57,7 @@ func (rep *MysqlMovieRepository) MovieDetail(ctx context.Context, id int) (movie
 
 	result := rep.Connect.Preload("Genre").Preload("Ratings.User").First(&movie, "id= ?", id)
 	if result.Error != nil {
+		fmt.Println("DB")
 		return movies.Movie{}, result.Error
 	}
 	for _, v := range movie.Ratings {
@@ -70,8 +70,7 @@ func (rep *MysqlMovieRepository) MovieDetail(ctx context.Context, id int) (movie
 
 func (rep *MysqlMovieRepository) SearchMovie(ctx context.Context, title string) ([]movies.Movie, error) {
 	var movie []Movies
-
-	fmt.Println(title)
+	// fmt.Println(title)
 
 	result := rep.Connect.Preload("Genre").Preload("Ratings.User").Where("title LIKE ?", title+"%").Find(&movie)
 	if result.Error != nil {
@@ -100,9 +99,9 @@ func (rep *MysqlMovieRepository) FilterGenre(ctx context.Context, genre string) 
 	// 	return []movies.Movie{}, result.Error
 	// }
 	// result := rep.Connect.Preload("Genre").Where("id IN (SELECT movies_id FROM movie_genres WHERE name IN ?)", []string{genre}).Find(&movie)
-	result := rep.Connect.Preload("Genre").Preload("Ratings.User").
-		Joins("JOIN movie_genres on movie_genres.movies_id = movies.id JOIN genres on movie_genres.genre_id = genres.id AND genres.name = ? ",
-			genre).Find(&movie)
+	result := rep.Connect.Preload("Genre").
+		Joins("JOIN movie_genres on movie_genres.movies_id = movies.id JOIN genres on movie_genres.genres_id = genres.id AND genres.name = ? ",
+			genre).Preload("Ratings.User").Find(&movie)
 	if result.Error != nil {
 		return []movies.Movie{}, result.Error
 	}
@@ -115,7 +114,7 @@ func (rep *MysqlMovieRepository) FilterOrder(ctx context.Context, order string) 
 	// if res.Error != nil {
 	// 	return []movies.Movie{}, res.Error
 	// }
-	if order == "Terlama" {
+	if order == "oldest" {
 		result := rep.Connect.Preload("Genre").Preload("Ratings.User").Find(&movie)
 		if result.Error != nil {
 			return []movies.Movie{}, result.Error

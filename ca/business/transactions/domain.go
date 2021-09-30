@@ -2,17 +2,19 @@ package transactions
 
 import (
 	"context"
+	"project/ca/business/payments"
+	"project/ca/business/subscription"
 	"time"
 )
 
 type Transaction struct {
 	Id                int
 	Payment_method_id int
-	Payment           string
+	Payment           payments.Payment_method
 	User_Id           int
 	Username          string
 	Plan_Id           int
-	Subscription_Plan string
+	Subscription_Plan subscription.SubcriptionPlan
 	Price             int
 	CreatedAt         time.Time
 	UpdatedAt         time.Time

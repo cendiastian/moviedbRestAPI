@@ -1,7 +1,7 @@
 package middlewares
 
 import (
-	"project/mvc/constants"
+	"project/constants"
 	"time"
 
 	"github.com/golang-jwt/jwt"

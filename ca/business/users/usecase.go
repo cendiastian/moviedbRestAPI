@@ -3,19 +3,21 @@ package users
 import (
 	"context"
 	"errors"
+	"fmt"
 	"project/ca/app/middlewares"
+	"project/ca/helpers/encrypt"
 	"time"
 )
 
 type UserUsecase struct {
-	ConfigJWT      middlewares.ConfigJWT
+	ConfigJWT      *middlewares.ConfigJWT
 	Repo           Repository
 	contextTimeout time.Duration
 }
 
-func NewUserUsecase(repo Repository, timeout time.Duration) Usecase {
+func NewUserUsecase(repo Repository, timeout time.Duration, configJWT *middlewares.ConfigJWT) Usecase {
 	return &UserUsecase{
-		// ConfigJWT:      configJWT,
+		ConfigJWT:      configJWT,
 		Repo:           repo,
 		contextTimeout: timeout,
 	}
@@ -44,21 +46,29 @@ func (uc *UserUsecase) Login(ctx context.Context, domain User) (User, error) {
 		return User{}, errors.New("mohon isi password")
 	}
 
-	var err error
+	// var err error
 	// domain.Password, err = encrypt.Hash(domain.Password)
 
 	// user, err := uc.Repo.Login(ctx, domain.Email, domain.Password)
+	// if err != nil {
+	// 	return User{}, err
+	// }
+
+	user, err := uc.Repo.Login(ctx, domain)
 	if err != nil {
 		return User{}, err
 	}
 
-	user, err := uc.Repo.Login(ctx, domain.Email, domain.Password)
+	err = encrypt.CheckPassword(domain.Password, user.Password)
 	if err != nil {
+		fmt.Println(err)
 		return User{}, err
 	}
 
-	// user.Token, err = uc.ConfigJWT.GenerateToken(user.Id)
+	user.Token, err = uc.ConfigJWT.GenerateToken(user.Id)
+	// fmt.Println(user.Token)
 	if err != nil {
+		fmt.Println(err)
 		return User{}, err
 	}
 
@@ -141,7 +151,7 @@ func (uc *UserUsecase) Register(c context.Context, domain User) (User, error) {
 	defer error()
 
 	domain.UpdatedAt = time.Now()
-
+	// domain.Password, _ = encrypt.Hash(domain.Password)
 	user, err := uc.Repo.Register(ctx, domain)
 	if err != nil {
 		return User{}, err

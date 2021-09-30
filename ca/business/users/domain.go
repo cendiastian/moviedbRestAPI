@@ -30,7 +30,7 @@ type Usecase interface {
 
 type Repository interface {
 	GetAll(ctx context.Context) ([]User, error)
-	Login(ctx context.Context, email string, password string) (User, error)
+	Login(ctx context.Context, User User) (User, error)
 	UserDetail(ctx context.Context, id int) (User, error)
 	Update(ctx context.Context, User User) error
 	Delete(ctx context.Context, id int) error

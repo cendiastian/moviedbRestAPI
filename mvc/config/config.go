@@ -1,8 +1,8 @@
 package config
 
 import (
-	"project/mvc/model/movie"
-	"project/mvc/model/user"
+	"project/model/movie"
+	"project/model/user"
 
 	"gorm.io/driver/mysql"
 	"gorm.io/gorm"

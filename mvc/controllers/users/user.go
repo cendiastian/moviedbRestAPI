@@ -2,15 +2,16 @@ package users
 
 import (
 	"net/http"
-	"project/mvc/config"
-	"project/mvc/middlewares"
-	"project/mvc/model/response"
-	"project/mvc/model/user"
+	"project/config"
+	"project/middlewares"
+	"project/model/response"
+	"project/model/user"
 	"strconv"
 
-	// "project/mvc/routes"
+	// "project/routes"
 
 	"github.com/labstack/echo/v4"
+	"gorm.io/gorm"
 )
 
 func UserRegist(c echo.Context) error {
@@ -62,11 +63,13 @@ func GetUser(c echo.Context) error {
 	result := config.DB.Find(&users)
 
 	if result.Error != nil {
-		return c.JSON(http.StatusInternalServerError, response.Response{
-			Code:    http.StatusInternalServerError,
-			Message: "Error ketika input mendapatkan data user dari DB",
-			Data:    nil,
-		})
+		if result.Error != gorm.ErrRecordNotFound {
+			return c.JSON(http.StatusInternalServerError, response.Response{
+				Code:    http.StatusInternalServerError,
+				Message: "Error ketika input mendapatkan data user dari DB",
+				Data:    nil,
+			})
+		}
 	}
 
 	return c.JSON(http.StatusOK, response.Response{

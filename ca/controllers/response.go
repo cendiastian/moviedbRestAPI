@@ -10,7 +10,7 @@ type Response struct {
 	Meta struct {
 		Status  int    `json:"status"`
 		Message string `json:"message"`
-	}
+	} `json:"meta"`
 	Data interface{} `json:"data"`
 }
 type UpdateResponse struct {
