@@ -176,6 +176,3 @@ func main() {
 	routesInit.RouteRegister(e)
 	log.Fatal((e.Start(viper.GetString("server.address"))))
 }
-
-// mysql -h moviedb.c0h4vutkt5j1.us-east-2.rds.amazonaws.com -u admin -p
-// ssh -i "E:\project\kampusmerdeka.pem" moviedb.c0h4vutkt5j1.us-east-2.rds.amazonaws.com
