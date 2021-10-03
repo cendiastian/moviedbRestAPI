@@ -133,7 +133,7 @@ func main() {
 	proRepo := _proRepo.NewMysqlPremiumRepository(Connect)
 
 	userRepo := _userRepo.NewMysqlUserRepository(Connect)
-	userUC := _userUC.NewUserUsecase(userRepo, proRepo, timeoutContext, &configJWT)
+	userUC := _userUC.NewUserUsecase(userRepo, proRepo, timeoutContext /*&configJWT*/)
 	userCtrl := _userCtrl.NewUserController(userUC)
 
 	// apiRepo := _apiRepo.NewMysqlAPIRepository(Connect)

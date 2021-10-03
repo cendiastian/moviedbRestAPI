@@ -51,6 +51,9 @@ func (cl *ControllerList) RouteRegister(e *echo.Echo) {
 	e.GET("movies/genre", cl.MovieController.FilterGenre)
 	e.GET("movies/order", cl.MovieController.FilterOrder)
 
+	// GENRE
+	e.GET("genre/all", cl.GenreController.GetAllGenre)
+
 	// SUBSCRIPTION
 	e.POST("subs/Create", cl.SubcriptionController.Createsubcription)
 	e.GET("subs/Detail/:Id", cl.SubcriptionController.Detail)
@@ -91,11 +94,3 @@ func (cl *ControllerList) RouteRegister(e *echo.Echo) {
 // 		}
 // 	}
 // }
-
-// "database": {
-// 	"host": "moviedb.c0h4vutkt5j1.us-east-2.rds.amazonaws.com",
-// 	"port": "3306",
-// 	"user": "admin",
-// 	"pass": "cendiastian",
-// 	"name": "moviedb"
-// },

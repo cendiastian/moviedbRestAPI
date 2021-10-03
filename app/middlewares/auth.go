@@ -44,25 +44,3 @@ func (jwtConf *ConfigJWT) GenerateToken(UserId int) (string, error) {
 	// fmt.Println(jwtConf.SecretJWT)
 	return token, nil
 }
-
-// func (jwtConf *ConfigJWT) GenerateTokenPremium(UserId int) (string, error) {
-// 	claims := JwtMyClaims{
-// 		UserId,
-// 		jwt.StandardClaims{
-// 			ExpiresAt: time.Now().Local().Add(time.Hour * time.Duration(int64(jwtConf.ExpiresDuration))).Unix(),
-// 		},
-// 	}
-
-// 	//buat token dengan claims
-// 	t := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
-// 	token, _ := t.SignedString([]byte(jwtConf.SecretJWT))
-// 	// fmt.Println(jwtConf.SecretJWT)
-// 	return token, nil
-// }
-
-// // GetUser from jwt ...
-// func GetUser(c echo.Context) *JwtMyClaims {
-// 	user := c.Get("user").(*jwt.Token)
-// 	claims := user.Claims.(*JwtMyClaims)
-// 	return claims
-// }
