@@ -31,7 +31,7 @@ type Usecase interface {
 	FilterGenre(ctx context.Context, genre string) ([]Movie, error)
 	FilterOrder(ctx context.Context, order string) ([]Movie, error)
 	DeleteAll(ctx context.Context) error
-	DeleteMovie(ctx context.Context, id int) (Movie, error)
+	DeleteMovie(ctx context.Context, id int) error
 	UpdateMovie(ctx context.Context, Movie Movie) error
 }
 
@@ -39,7 +39,7 @@ type Repository interface {
 	GetAllMovie(ctx context.Context) ([]Movie, error)
 	DeleteAll(ctx context.Context) error
 	UpdateMovie(ctx context.Context, Movie Movie) error
-	DeleteMovie(ctx context.Context, id int) (Movie, error)
+	DeleteMovie(ctx context.Context, id int) error
 	CreateMovie(ctx context.Context, Movie Movie, array []genres.Genre) (Movie, error)
 	MovieDetail(ctx context.Context, id int) (Movie, error)
 	SearchMovie(ctx context.Context, title string) ([]Movie, error)

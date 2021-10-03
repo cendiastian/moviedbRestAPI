@@ -3,6 +3,7 @@ package genres
 import (
 	"context"
 	"project/app/middlewares"
+	"project/business"
 	"time"
 )
 
@@ -26,7 +27,10 @@ func (uc *Usecases) GetAllGenre(c context.Context) ([]Genre, error) {
 
 	genre, err := uc.Repo.GetAllGenre(ctx)
 	if err != nil {
-		return []Genre{}, err
+		return []Genre{}, business.ErrInternalServer
+	}
+	if len(genre) == 0 {
+		return []Genre{}, business.ErrNotFound
 	}
 
 	return genre, nil

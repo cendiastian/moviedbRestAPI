@@ -16,7 +16,7 @@ type Payment_method struct {
 type Usecase interface {
 	GetAll(ctx context.Context) ([]Payment_method, error)
 	Detail(ctx context.Context, id int) (Payment_method, error)
-	Update(ctx context.Context, Payment_method Payment_method) error
+	Update(ctx context.Context, Payment_method Payment_method) (Payment_method, error)
 	Delete(ctx context.Context, id int) (Payment_method, error)
 	Register(ctx context.Context, Payment_method Payment_method) (Payment_method, error)
 }
@@ -24,7 +24,7 @@ type Usecase interface {
 type Repository interface {
 	GetAll(ctx context.Context) ([]Payment_method, error)
 	Detail(ctx context.Context, id int) (Payment_method, error)
-	Update(ctx context.Context, Payment_method Payment_method) error
+	Update(ctx context.Context, Payment_method Payment_method) (Payment_method, error)
 	Delete(ctx context.Context, id int) (Payment_method, error)
 	Register(ctx context.Context, Payment_method Payment_method) (Payment_method, error)
 }

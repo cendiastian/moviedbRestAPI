@@ -2,9 +2,9 @@ package ratings
 
 import (
 	"context"
-	"errors"
 	"fmt"
 	"project/app/middlewares"
+	resp "project/business"
 	"time"
 )
 
@@ -22,37 +22,21 @@ func NewRateUsecase(repo Repository, timeout time.Duration) Usecase {
 	}
 }
 
-// func (uc *RateUseCase) GetAllRate(c context.Context, id int) (Ratings, error) {
-// 	ctx, error := context.WithTimeout(c, uc.contextTimeout)
-// 	defer error()
-
-// 	Rate, err := uc.Repo.GetAllRate(ctx, id)
-// 	if err != nil {
-// 		return Ratings{}, err
-// 	}
-
-// 	return Rate, nil
-// }
-
 func (uc *RateUseCase) Detail(c context.Context, domain Ratings) (res Ratings, err error) {
 	ctx, error := context.WithTimeout(c, uc.contextTimeout)
 	defer error()
 	rate, err := uc.Repo.Detail(ctx, domain.MovieId, domain.UserId)
 	if err != nil {
-		return Ratings{}, err
+		return Ratings{}, resp.ErrNotFound
 	}
 	return rate, nil
 }
 
 func (uc *RateUseCase) Delete(c context.Context, domain Ratings) error {
 
-	if domain.MovieId == 0 {
-		fmt.Println("movie err")
-		return errors.New("mohon isi ID Movie")
-	}
-	if domain.UserId == 0 {
+	if domain.MovieId == 0 || domain.UserId == 0 {
 		fmt.Println("user err")
-		return errors.New("mohon isi ID User")
+		return resp.ErrFillData
 	}
 
 	ctx, cancel := context.WithTimeout(c, uc.contextTimeout)
@@ -60,13 +44,13 @@ func (uc *RateUseCase) Delete(c context.Context, domain Ratings) error {
 
 	_, err := uc.Repo.Detail(ctx, domain.MovieId, domain.UserId)
 	if err != nil {
-		return err
+		return resp.ErrNotFound
 	}
 	domain.UpdatedAt = time.Now()
 
 	err = uc.Repo.Delete(ctx, domain.MovieId, domain.UserId)
 	if err != nil {
-		return err
+		return resp.ErrInternalServer
 	}
 
 	return nil
@@ -74,11 +58,8 @@ func (uc *RateUseCase) Delete(c context.Context, domain Ratings) error {
 
 func (uc *RateUseCase) Update(c context.Context, domain Ratings) error {
 
-	if domain.MovieId == 0 {
-		return errors.New("mohon isi ID Movie")
-	}
-	if domain.UserId == 0 {
-		return errors.New("mohon isi ID User")
+	if domain.MovieId == 0 || domain.UserId == 0 {
+		return resp.ErrNotFound
 	}
 
 	ctx, error := context.WithTimeout(c, uc.contextTimeout)
@@ -100,14 +81,8 @@ func (uc *RateUseCase) Update(c context.Context, domain Ratings) error {
 
 func (uc *RateUseCase) Create(c context.Context, domain Ratings) (Ratings, error) {
 
-	if domain.MovieId == 0 {
-		return Ratings{}, errors.New("mohon isi ID Movie")
-	}
-	if domain.UserId == 0 {
-		return Ratings{}, errors.New("mohon isi ID User")
-	}
-	if domain.Rate == 0 {
-		return Ratings{}, errors.New("mohon isi Ratings")
+	if domain.MovieId == 0 || domain.UserId == 0 || domain.Rate == 0 {
+		return Ratings{}, resp.ErrNotFound
 	}
 
 	ctx, error := context.WithTimeout(c, uc.contextTimeout)

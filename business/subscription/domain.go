@@ -20,7 +20,7 @@ type Usecase interface {
 	GetAll(ctx context.Context) ([]SubcriptionPlan, error)
 	Detail(ctx context.Context, id int) (SubcriptionPlan, error)
 	Update(ctx context.Context, subs SubcriptionPlan) error
-	Delete(ctx context.Context, id int) (SubcriptionPlan, error)
+	Delete(ctx context.Context, id int) error
 	CreatePlan(ctx context.Context, subs SubcriptionPlan) (SubcriptionPlan, error)
 }
 

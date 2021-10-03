@@ -2,8 +2,8 @@ package payments
 
 import (
 	"context"
-	"errors"
 	"project/app/middlewares"
+	resp "project/business"
 	"time"
 )
 
@@ -26,9 +26,11 @@ func (uc *PaymentUsecase) GetAll(c context.Context) ([]Payment_method, error) {
 
 	pay, err := uc.Repo.GetAll(ctx)
 	if err != nil {
-		return []Payment_method{}, err
+		return []Payment_method{}, resp.ErrInternalServer
 	}
-
+	if len(pay) == 0 {
+		return []Payment_method{}, resp.ErrNotFound
+	}
 	return pay, nil
 }
 
@@ -36,9 +38,13 @@ func (uc *PaymentUsecase) Detail(c context.Context, id int) (res Payment_method,
 	ctx, error := context.WithTimeout(c, uc.contextTimeout)
 	defer error()
 
+	if id == 0 {
+		return Payment_method{}, resp.ErrFillData
+	}
+
 	pay, err := uc.Repo.Detail(ctx, id)
 	if err != nil {
-		return Payment_method{}, err
+		return Payment_method{}, resp.ErrNotFound
 	}
 
 	return pay, nil
@@ -47,50 +53,50 @@ func (uc *PaymentUsecase) Detail(c context.Context, id int) (res Payment_method,
 func (uc *PaymentUsecase) Delete(c context.Context, id int) (Payment_method, error) {
 
 	if id == 0 {
-		return Payment_method{}, errors.New("mohon isi ID")
+		return Payment_method{}, resp.ErrFillData
 	}
 
 	ctx, cancel := context.WithTimeout(c, uc.contextTimeout)
 	defer cancel()
-	del, err := uc.Repo.Detail(ctx, id)
+	_, err := uc.Repo.Detail(ctx, id)
 	if err != nil {
-		return Payment_method{}, err
+		return Payment_method{}, resp.ErrNotFound
 	}
-	del, err = uc.Repo.Delete(ctx, id)
+	del, err := uc.Repo.Delete(ctx, id)
 	if err != nil {
-		return Payment_method{}, err
+		return Payment_method{}, resp.ErrInternalServer
 	}
 
 	return del, nil
 }
 
-func (uc *PaymentUsecase) Update(c context.Context, domain Payment_method) (err error) {
+func (uc *PaymentUsecase) Update(c context.Context, domain Payment_method) (Payment_method, error) {
 
 	if domain.Id == 0 {
-		return errors.New("mohon isi ID")
+		return Payment_method{}, resp.ErrFillData
 	}
 
 	ctx, error := context.WithTimeout(c, uc.contextTimeout)
 	defer error()
-	_, err = uc.Repo.Detail(ctx, domain.Id)
+	_, err := uc.Repo.Detail(ctx, domain.Id)
 	if err != nil {
-		return err
+		return Payment_method{}, resp.ErrNotFound
 	}
 	domain.UpdatedAt = time.Now()
 
-	err = uc.Repo.Update(ctx, domain)
+	upt, err := uc.Repo.Update(ctx, domain)
 	if err != nil {
-		return err
+		return Payment_method{}, resp.ErrInternalServer
 	}
 
-	return nil
+	return upt, nil
 
 }
 
 func (uc *PaymentUsecase) Register(c context.Context, domain Payment_method) (Payment_method, error) {
 
 	if domain.Name == "" {
-		return Payment_method{}, errors.New("mohon isi Nama")
+		return Payment_method{}, resp.ErrFillData
 	}
 
 	ctx, error := context.WithTimeout(c, uc.contextTimeout)
@@ -100,7 +106,7 @@ func (uc *PaymentUsecase) Register(c context.Context, domain Payment_method) (Pa
 
 	pay, err := uc.Repo.Register(ctx, domain)
 	if err != nil {
-		return Payment_method{}, err
+		return Payment_method{}, resp.ErrInternalServer
 	}
 
 	return pay, nil

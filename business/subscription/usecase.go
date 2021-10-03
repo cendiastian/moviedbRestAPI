@@ -2,9 +2,9 @@ package subscription
 
 import (
 	"context"
-	"errors"
 	"fmt"
 	"project/app/middlewares"
+	resp "project/business"
 	"time"
 )
 
@@ -28,7 +28,10 @@ func (uc *subsUseCase) GetAll(c context.Context) ([]SubcriptionPlan, error) {
 
 	Subs, err := uc.Repo.GetAll(ctx)
 	if err != nil {
-		return []SubcriptionPlan{}, err
+		return []SubcriptionPlan{}, resp.ErrInternalServer
+	}
+	if len(Subs) == 0 {
+		return []SubcriptionPlan{}, resp.ErrNotFound
 	}
 
 	return Subs, nil
@@ -37,52 +40,55 @@ func (uc *subsUseCase) GetAll(c context.Context) ([]SubcriptionPlan, error) {
 func (uc *subsUseCase) Detail(c context.Context, id int) (res SubcriptionPlan, err error) {
 	ctx, error := context.WithTimeout(c, uc.contextTimeout)
 	defer error()
+	if id == 0 {
+		return SubcriptionPlan{}, resp.ErrFillData
+	}
 
 	Sub, err := uc.Repo.Detail(ctx, id)
 	if err != nil {
-		return SubcriptionPlan{}, err
+		return SubcriptionPlan{}, resp.ErrNotFound
 	}
 
 	return Sub, nil
 
 }
-func (uc *subsUseCase) Delete(c context.Context, id int) (SubcriptionPlan, error) {
+func (uc *subsUseCase) Delete(c context.Context, id int) error {
 
 	if id == 0 {
-		return SubcriptionPlan{}, errors.New("mohon isi ID")
+		return resp.ErrFillData
 	}
 
 	ctx, cancel := context.WithTimeout(c, uc.contextTimeout)
 	defer cancel()
 	_, err := uc.Repo.Detail(ctx, id)
 	if err != nil {
-		return SubcriptionPlan{}, err
+		return resp.ErrNotFound
 	}
-	del, err := uc.Repo.Delete(ctx, id)
+	_, err = uc.Repo.Delete(ctx, id)
 	if err != nil {
-		return SubcriptionPlan{}, err
+		return resp.ErrInternalServer
 	}
 
-	return del, nil
+	return nil
 }
 
 func (uc *subsUseCase) Update(c context.Context, domain SubcriptionPlan) (err error) {
 
 	if domain.Id == 0 {
-		return errors.New("mohon isi ID")
+		return resp.ErrFillData
 	}
 
 	ctx, error := context.WithTimeout(c, uc.contextTimeout)
 	defer error()
 	_, err = uc.Repo.Detail(ctx, domain.Id)
 	if err != nil {
-		return err
+		return resp.ErrNotFound
 	}
 	domain.UpdatedAt = time.Now()
 
 	err = uc.Repo.Update(ctx, domain)
 	if err != nil {
-		return err
+		return resp.ErrInternalServer
 	}
 
 	return nil
@@ -91,20 +97,10 @@ func (uc *subsUseCase) Update(c context.Context, domain SubcriptionPlan) (err er
 
 func (uc *subsUseCase) CreatePlan(c context.Context, domain SubcriptionPlan) (SubcriptionPlan, error) {
 
-	if domain.Name == "" {
-		return SubcriptionPlan{}, errors.New("mohon isi Nama")
-	}
-	if domain.Expired == "" {
-		return SubcriptionPlan{}, errors.New("mohon isi Expired")
+	if domain.Name == "" || domain.Expired == "" || domain.Exp.IsZero() || domain.Price == 0 {
+		return SubcriptionPlan{}, resp.ErrFillData
 	}
 	fmt.Println(domain.Exp)
-	if domain.Exp.IsZero() {
-		return SubcriptionPlan{}, errors.New("mohon isi Exp")
-	}
-	if domain.Price == 0 {
-		return SubcriptionPlan{}, errors.New("mohon isi Price")
-	}
-
 	ctx, error := context.WithTimeout(c, uc.contextTimeout)
 	defer error()
 
@@ -112,7 +108,7 @@ func (uc *subsUseCase) CreatePlan(c context.Context, domain SubcriptionPlan) (Su
 
 	subs, err := uc.Repo.CreatePlan(ctx, domain)
 	if err != nil {
-		return SubcriptionPlan{}, err
+		return SubcriptionPlan{}, resp.ErrInternalServer
 	}
 
 	return subs, nil

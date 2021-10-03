@@ -2,24 +2,21 @@ package users
 
 import (
 	"context"
-	"errors"
-	"fmt"
-	"project/app/middlewares"
+	resp "project/business"
 	"project/business/premium"
-	"project/helpers/encrypt"
 	"time"
 )
 
 type UserUsecase struct {
-	ConfigJWT      *middlewares.ConfigJWT
+	// ConfigJWT      *middlewares.ConfigJWT
 	Repo           Repository
 	RepoPro        premium.Repository
 	contextTimeout time.Duration
 }
 
-func NewUserUsecase(repo Repository, repoPro premium.Repository, timeout time.Duration, configJWT *middlewares.ConfigJWT) Usecase {
+func NewUserUsecase(repo Repository, repoPro premium.Repository, timeout time.Duration /*configJWT *middlewares.ConfigJWT*/) Usecase {
 	return &UserUsecase{
-		ConfigJWT:      configJWT,
+		// ConfigJWT:      configJWT,
 		Repo:           repo,
 		RepoPro:        repoPro,
 		contextTimeout: timeout,
@@ -32,7 +29,10 @@ func (uc *UserUsecase) GetAll(c context.Context) ([]User, error) {
 
 	user, err := uc.Repo.GetAll(ctx)
 	if err != nil {
-		return []User{}, err
+		return []User{}, resp.ErrInternalServer
+	}
+	if len(user) == 0 {
+		return []User{}, resp.ErrNotFound
 	}
 
 	return user, nil
@@ -41,43 +41,31 @@ func (uc *UserUsecase) GetAll(c context.Context) ([]User, error) {
 // func (uc *UserUsecase) Login(ctx context.Context, email string, password string) (Domain, error) {
 func (uc *UserUsecase) Login(ctx context.Context, domain User) (User, error) {
 
-	if domain.Email == "" {
-		return User{}, errors.New("mohon isi email")
+	if domain.Email == "" || domain.Password == "" {
+		return User{}, resp.ErrFillData
 	}
-
-	if domain.Password == "" {
-		return User{}, errors.New("mohon isi password")
-	}
-
-	// var err error
-	// domain.Password, err = encrypt.Hash(domain.Password)
-
-	// user, err := uc.Repo.Login(ctx, domain.Email, domain.Password)
-	// if err != nil {
-	// 	return User{}, err
-	// }
 
 	user, err := uc.Repo.Login(ctx, domain)
 	if err != nil {
-		return User{}, err
+		return User{}, resp.ErrUsernamePasswordNotFound
 	}
 
-	err = encrypt.CheckPassword(domain.Password, user.Password)
-	if err != nil {
-		fmt.Println(err)
-		return User{}, err
-	}
+	// err = encrypt.CheckPassword(domain.Password, user.Password)
+	// if err != nil {
+	// 	fmt.Println(err)
+	// 	return User{}, resp.ErrUsernamePasswordNotFound
+	// }
 
-	user.Token, err = uc.ConfigJWT.GenerateToken(user.Id)
-	// fmt.Println(user.Token)
-	if err != nil {
-		fmt.Println(err)
-		return User{}, err
-	}
+	// user.Token, err = uc.ConfigJWT.GenerateToken(user.Id)
+
+	// if err != nil {
+	// 	fmt.Println(err)
+	// 	return User{}, resp.ErrInternalServer
+	// }
 	today := time.Now()
 	pro, err := uc.RepoPro.Detail(ctx, user.Id)
 	if err != nil {
-		return User{}, err
+		return User{}, resp.ErrNotFound
 	}
 	if pro.Expired.Before(today) && !pro.Expired.IsZero() {
 		res := premium.Premium{
@@ -88,7 +76,7 @@ func (uc *UserUsecase) Login(ctx context.Context, domain User) (User, error) {
 		}
 		user.Premium, err = uc.RepoPro.Save(ctx, res)
 		if err != nil {
-			return User{}, err
+			return User{}, resp.ErrInternalServer
 		}
 	}
 
@@ -99,72 +87,67 @@ func (uc *UserUsecase) UserDetail(c context.Context, id int) (res User, err erro
 	ctx, error := context.WithTimeout(c, uc.contextTimeout)
 	defer error()
 
+	if id == 0 {
+		return User{}, resp.ErrFillData
+	}
+
 	user, err := uc.Repo.UserDetail(ctx, id)
 	if err != nil {
-		return User{}, err
+		return User{}, resp.ErrNotFound
 	}
 
 	return user, nil
 
 }
-func (uc *UserUsecase) Delete(c context.Context, domain User) (err error) {
+func (uc *UserUsecase) Delete(c context.Context, id int) (res User, err error) {
 
-	if domain.Id == 0 {
-		return errors.New("mohon isi ID")
+	if id == 0 {
+		return User{}, resp.ErrFillData
 	}
 
 	ctx, error := context.WithTimeout(c, uc.contextTimeout)
 	defer error()
 
-	exist, err := uc.Repo.UserDetail(ctx, domain.Id)
+	_, err = uc.Repo.UserDetail(ctx, id)
 	if err != nil {
-		return err
-	}
-	if exist.Id == 0 {
-		return err
+		return User{}, resp.ErrNotFound
 	}
 
-	err = uc.Repo.Delete(ctx, domain.Id)
+	del, err := uc.Repo.Delete(ctx, id)
 	if err != nil {
-		return err
+		return User{}, resp.ErrNotFound
 	}
 
-	return nil
+	return del, nil
 }
 
-func (uc *UserUsecase) Update(c context.Context, domain User) (err error) {
+func (uc *UserUsecase) Update(c context.Context, domain User) (res User, err error) {
 
 	if domain.Id == 0 {
-		return errors.New("mohon isi ID")
+		return User{}, resp.ErrFillData
 	}
 
 	ctx, error := context.WithTimeout(c, uc.contextTimeout)
 	defer error()
 	_, err = uc.Repo.UserDetail(ctx, domain.Id)
 	if err != nil {
-		return err
+		return User{}, resp.ErrNotFound
 	}
 	domain.UpdatedAt = time.Now()
 
-	err = uc.Repo.Update(ctx, domain)
+	up, err := uc.Repo.Update(ctx, domain)
 	if err != nil {
-		return err
+		return User{}, resp.ErrNotFound
 	}
 
-	return nil
+	return up, nil
 
 }
 
 func (uc *UserUsecase) Register(c context.Context, domain User) (User, error) {
 
-	if domain.Name == "" {
-		return User{}, errors.New("mohon isi Nama")
-	}
-	if domain.Email == "" {
-		return User{}, errors.New("mohon isi Email")
-	}
-	if domain.Password == "" {
-		return User{}, errors.New("mohon isi Password")
+	if domain.Name == "" || domain.Email == "" || domain.Password == "" {
+		return User{}, resp.ErrFillData
 	}
 
 	ctx, error := context.WithTimeout(c, uc.contextTimeout)
@@ -174,7 +157,7 @@ func (uc *UserUsecase) Register(c context.Context, domain User) (User, error) {
 	// domain.Password, _ = encrypt.Hash(domain.Password)
 	user, err := uc.Repo.Register(ctx, domain)
 	if err != nil {
-		return User{}, err
+		return User{}, resp.ErrInternalServer
 	}
 	res := premium.Premium{
 		UserId:  user.Id,
@@ -183,7 +166,7 @@ func (uc *UserUsecase) Register(c context.Context, domain User) (User, error) {
 	}
 	_, err = uc.RepoPro.Save(ctx, res)
 	if err != nil {
-		return User{}, err
+		return User{}, resp.ErrInternalServer
 	}
 
 	return user, nil
