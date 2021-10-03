@@ -60,17 +60,17 @@ func (rep *MysqlMovieRepository) SearchMovie(ctx context.Context, title string) 
 	var movie []Movies
 	// fmt.Println(title)
 
-	result := rep.Connect.Preload("Genre").Preload("Ratings.User").Where("title LIKE ?", title+"%").Find(&movie)
+	result := rep.Connect.Preload("Genre").Where("title LIKE ?", title+"%").Find(&movie)
 	if result.Error != nil {
 		return []movies.Movie{}, result.Error
 	}
 
-	result = rep.Connect.Preload("Genre").Preload("Ratings.User").Where("title LIKE ?", title+"%").Find(&movie)
+	result = rep.Connect.Preload("Genre").Where("title LIKE ?", title+"%").Find(&movie)
 	if result.Error != nil {
 		return []movies.Movie{}, result.Error
 	}
 
-	result = rep.Connect.Preload("Genre").Preload("Ratings.User").Where("title LIKE ?", "%"+title+"%").Find(&movie)
+	result = rep.Connect.Preload("Genre").Where("title LIKE ?", "%"+title+"%").Find(&movie)
 	if result.Error != nil {
 		return []movies.Movie{}, result.Error
 	}
@@ -89,7 +89,7 @@ func (rep *MysqlMovieRepository) FilterGenre(ctx context.Context, genre string) 
 	// result := rep.Connect.Preload("Genre").Where("id IN (SELECT movies_id FROM movie_genres WHERE name IN ?)", []string{genre}).Find(&movie)
 	result := rep.Connect.Preload("Genre").
 		Joins("JOIN movie_genres on movie_genres.movies_id = movies.id JOIN genres on movie_genres.genres_id = genres.id AND genres.name = ? ",
-			genre).Preload("Ratings.User").Find(&movie)
+			genre).Find(&movie)
 	if result.Error != nil {
 		return []movies.Movie{}, result.Error
 	}
@@ -103,12 +103,12 @@ func (rep *MysqlMovieRepository) FilterOrder(ctx context.Context, order string) 
 	// 	return []movies.Movie{}, res.Error
 	// }
 	if order == "oldest" {
-		result := rep.Connect.Preload("Genre").Preload("Ratings.User").Find(&movie)
+		result := rep.Connect.Preload("Genre").Find(&movie)
 		if result.Error != nil {
 			return []movies.Movie{}, result.Error
 		}
 	} else {
-		result := rep.Connect.Preload("Genre").Preload("Ratings.User").Order("id desc").Find(&movie)
+		result := rep.Connect.Preload("Genre").Order("id desc").Find(&movie)
 		if result.Error != nil {
 			return []movies.Movie{}, result.Error
 		}
@@ -118,7 +118,7 @@ func (rep *MysqlMovieRepository) FilterOrder(ctx context.Context, order string) 
 
 func (rep *MysqlMovieRepository) GetAllMovie(ctx context.Context) ([]movies.Movie, error) {
 	var movie []Movies
-	result := rep.Connect.Preload("Genre").Preload("Ratings.User").Find(&movie)
+	result := rep.Connect.Preload("Genre").Find(&movie)
 	if result.Error != nil {
 		return []movies.Movie{}, result.Error
 	}
@@ -133,8 +133,7 @@ func (rep *MysqlMovieRepository) DeleteAll(ctx context.Context) error {
 		return result.Error
 	}
 
-	result = rep.Connect.Unscoped().Delete(&movie)
-
+	result = rep.Connect.Delete(&movie)
 	if result.Error != nil {
 		return result.Error
 	}
@@ -142,15 +141,15 @@ func (rep *MysqlMovieRepository) DeleteAll(ctx context.Context) error {
 	return nil
 }
 
-func (rep *MysqlMovieRepository) DeleteMovie(ctx context.Context, id int) (movies.Movie, error) {
+func (rep *MysqlMovieRepository) DeleteMovie(ctx context.Context, id int) error {
 	var movie Movies
 	result := rep.Connect.Where("id = ?", id).Delete(&movie)
 
 	if result.Error != nil {
-		return movies.Movie{}, result.Error
+		return result.Error
 	}
 
-	return movie.ToDomainMovie(), nil
+	return nil
 }
 
 func (rep *MysqlMovieRepository) UpdateMovie(ctx context.Context, domain movies.Movie) error {

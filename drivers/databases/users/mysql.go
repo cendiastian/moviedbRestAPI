@@ -21,7 +21,7 @@ func NewMysqlUserRepository(connect *gorm.DB) users.Repository {
 
 func (rep *MysqlUserRepository) Login(ctx context.Context, domain users.User) (users.User, error) {
 	var user Users
-	result := rep.Connect.Preload("Premium").First(&user, "email = ? ", domain.Email)
+	result := rep.Connect.Preload("Premium").Preload("Transaction").First(&user, "email = ? ", domain.Email)
 	if result.Error != nil {
 		fmt.Println(result.Error)
 		return users.User{}, result.Error
@@ -31,7 +31,7 @@ func (rep *MysqlUserRepository) Login(ctx context.Context, domain users.User) (u
 
 func (rep *MysqlUserRepository) GetAll(ctx context.Context) ([]users.User, error) {
 	var user []Users
-	result := rep.Connect.Preload("Transaction").Find(&user)
+	result := rep.Connect.Preload("Premium").Find(&user)
 	if result.Error != nil {
 		return []users.User{}, result.Error
 	}
@@ -40,7 +40,7 @@ func (rep *MysqlUserRepository) GetAll(ctx context.Context) ([]users.User, error
 
 func (rep *MysqlUserRepository) UserDetail(ctx context.Context, id int) (users.User, error) {
 	var user Users
-	result := rep.Connect.Preload("Transaction").First(&user, "id= ?", id)
+	result := rep.Connect.Preload("Transaction").Preload("Premium").First(&user, "id= ?", id)
 	if result.Error != nil {
 		return users.User{}, result.Error
 	}
