@@ -41,7 +41,7 @@ func (rep *MysqlRatingRepository) Update(ctx context.Context, domain ratings.Rat
 
 func (rep *MysqlRatingRepository) Create(ctx context.Context, domain ratings.Ratings) (ratings.Ratings, error) {
 	Rating := FromDomain(domain)
-	result := rep.Connect.Preload("User").Create(&Rating)
+	result := rep.Connect.Create(&Rating)
 
 	if result.Error != nil {
 		return ratings.Ratings{}, result.Error
@@ -52,7 +52,7 @@ func (rep *MysqlRatingRepository) Create(ctx context.Context, domain ratings.Rat
 
 func (rep *MysqlRatingRepository) Detail(ctx context.Context, movie int, user int) (ratings.Ratings, error) {
 	var pay Ratings
-	result := rep.Connect.Preload("User").First(&pay, "movie_id= ? AND user_id  = ? ", movie, user)
+	result := rep.Connect.Preload("User.Premium").First(&pay, "movie_id= ? AND user_id  = ? ", movie, user)
 	if result.Error != nil {
 		return ratings.Ratings{}, result.Error
 	}
