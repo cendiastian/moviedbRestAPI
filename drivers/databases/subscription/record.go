@@ -11,7 +11,7 @@ type SubcriptionPlan struct {
 	Id        int `gorm:"primaryKey"`
 	Name      string
 	Expired   string
-	Exp       time.Time
+	Exp       int
 	Price     int
 	CreatedAt time.Time
 	UpdatedAt time.Time

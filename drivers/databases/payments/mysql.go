@@ -46,15 +46,15 @@ func (rep *MysqlpayRepository) Delete(ctx context.Context, id int) (payments.Pay
 	return pay.ToDomain(), nil
 }
 
-func (rep *MysqlpayRepository) Update(ctx context.Context, domain payments.Payment_method) error {
+func (rep *MysqlpayRepository) Update(ctx context.Context, domain payments.Payment_method) (payments.Payment_method, error) {
 	pay := FromDomain(domain)
 	result := rep.Connect.Where("id = ?", pay.Id).Updates(&Payment_method{Name: pay.Name, Status: pay.Status})
 
 	if result.Error != nil {
-		return result.Error
+		return payments.Payment_method{}, result.Error
 	}
 
-	return nil
+	return pay.ToDomain(), nil
 }
 
 func (rep *MysqlpayRepository) Register(ctx context.Context, domain payments.Payment_method) (payments.Payment_method, error) {

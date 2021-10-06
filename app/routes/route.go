@@ -1,7 +1,7 @@
 package routes
 
 import (
-	"project/app/middlewares"
+	// "project/app/middlewares"
 	"project/controllers/genres"
 	"project/controllers/movies"
 	"project/controllers/payments"
@@ -15,7 +15,7 @@ import (
 )
 
 type ControllerList struct {
-	LoggerMiddleware      middlewares.MongoConfig
+	// LoggerMiddleware      middlewares.MongoConfig
 	JwtConfig             middleware.JWTConfig
 	UserController        users.UserController
 	MovieController       movies.MovieController
@@ -28,7 +28,7 @@ type ControllerList struct {
 
 func (cl *ControllerList) RouteRegister(e *echo.Echo) {
 
-	cl.LoggerMiddleware.Start(e)
+	// cl.LoggerMiddleware.Start(e)
 	// USER
 	e.POST("users/login", cl.UserController.Login)
 	// e.GET("users", cl.UserController.Login)
@@ -78,19 +78,3 @@ func (cl *ControllerList) RouteRegister(e *echo.Echo) {
 	e.PUT("rate/update", cl.RatingController.Update)
 	e.DELETE("rate/delete", cl.RatingController.Delete)
 }
-
-// func RoleValidation(role string, userControler users.UserController) echo.MiddlewareFunc {
-// 	return func(hf echo.HandlerFunc) echo.HandlerFunc {
-// 		return func(c echo.Context) error {
-// 			claims := middlewareApp.GetUser(c)
-
-// 			// userRole := userControler.UserRole(claims.ID)
-
-// 			if userRole == role {
-// 				return hf(c)
-// 			} else {
-// 				return controller.NewErrorResponse(c, http.StatusForbidden, errors.New("forbidden roles"))
-// 			}
-// 		}
-// 	}
-// }
