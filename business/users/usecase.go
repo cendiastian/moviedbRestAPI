@@ -2,21 +2,24 @@ package users
 
 import (
 	"context"
+	"fmt"
+	"project/app/middlewares"
 	resp "project/business"
 	"project/business/premium"
+	"project/helpers/encrypt"
 	"time"
 )
 
 type UserUsecase struct {
-	// ConfigJWT      *middlewares.ConfigJWT
+	ConfigJWT      *middlewares.ConfigJWT
 	Repo           Repository
 	RepoPro        premium.Repository
 	contextTimeout time.Duration
 }
 
-func NewUserUsecase(repo Repository, repoPro premium.Repository, timeout time.Duration /*configJWT *middlewares.ConfigJWT*/) Usecase {
+func NewUserUsecase(repo Repository, repoPro premium.Repository, timeout time.Duration, configJWT *middlewares.ConfigJWT) Usecase {
 	return &UserUsecase{
-		// ConfigJWT:      configJWT,
+		ConfigJWT:      configJWT,
 		Repo:           repo,
 		RepoPro:        repoPro,
 		contextTimeout: timeout,
@@ -42,26 +45,26 @@ func (uc *UserUsecase) GetAll(c context.Context) ([]User, error) {
 func (uc *UserUsecase) Login(ctx context.Context, domain User) (User, error) {
 
 	if domain.Email == "" || domain.Password == "" {
-		return User{}, resp.ErrFillData
+		return User{}, resp.ErrUsernamePasswordNotFound
 	}
 
 	user, err := uc.Repo.Login(ctx, domain)
 	if err != nil {
-		return User{}, resp.ErrUsernamePasswordNotFound
+		return User{}, resp.ErrUserResource
 	}
 
-	// err = encrypt.CheckPassword(domain.Password, user.Password)
-	// if err != nil {
-	// 	fmt.Println(err)
-	// 	return User{}, resp.ErrUsernamePasswordNotFound
-	// }
+	err = encrypt.CheckPassword(domain.Password, user.Password)
+	if err != nil {
+		fmt.Println(err)
+		return User{}, resp.ErrUserResource
+	}
 
-	// user.Token, err = uc.ConfigJWT.GenerateToken(user.Id)
+	user.Token, err = uc.ConfigJWT.GenerateToken(user.Id)
 
-	// if err != nil {
-	// 	fmt.Println(err)
-	// 	return User{}, resp.ErrInternalServer
-	// }
+	if err != nil {
+		fmt.Println(err)
+		return User{}, resp.ErrInternalServer
+	}
 	today := time.Now()
 	pro, err := uc.RepoPro.Detail(ctx, user.Id)
 	if err != nil {
@@ -154,7 +157,7 @@ func (uc *UserUsecase) Register(c context.Context, domain User) (User, error) {
 	defer error()
 
 	domain.UpdatedAt = time.Now()
-	// domain.Password, _ = encrypt.Hash(domain.Password)
+	domain.Password, _ = encrypt.Hash(domain.Password)
 	user, err := uc.Repo.Register(ctx, domain)
 	if err != nil {
 		return User{}, resp.ErrInternalServer

@@ -15,7 +15,7 @@ var (
 
 	ErrPayNotFound = errors.New("payment id not found")
 
-	// ErrTransNotFound = errors.New("transaction not found")
+	// ErrRecordsNotFound = errors.New("record not found")
 
 	ErrMovieResource = errors.New("movie id not found")
 

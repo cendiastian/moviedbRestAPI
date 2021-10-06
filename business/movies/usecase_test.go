@@ -132,6 +132,17 @@ func TestGetAllMovie(t *testing.T) {
 
 		movieRepository.AssertExpectations(t)
 	})
+
+	t.Run("Test case 3 | Zero", func(t *testing.T) {
+		movieRepository.On("GetAllMovie",
+			mock.Anything).Return([]movies.Movie{}, nil).Once()
+
+		movie, _ := movieService.GetAllMovie(context.Background())
+
+		assert.Len(t, movie, 0)
+
+		movieRepository.AssertExpectations(t)
+	})
 }
 func TestDeleteMovie(t *testing.T) {
 	setup()
@@ -151,20 +162,20 @@ func TestDeleteMovie(t *testing.T) {
 		// movieRepository.AssertExpectations(t)
 	})
 
-	// t.Run("Test case 2 | DeleteMovie Error", func(t *testing.T) {
-	// 	movieRepository.On("MovieDetail",
-	// 		mock.Anything,
-	// 		mock.AnythingOfType("int")).Return(movieDomain, nil).Once()
-	// 	movieRepository.On("DeleteMovie",
-	// 		mock.Anything,
-	// 		mock.AnythingOfType("int")).Return(movies.Movie{}, errors.New("Unexpected Error")).Once()
-	// 	err := movieService.DeleteMovie(context.Background(), movieDomain.Id)
+	t.Run("Test case 2 | DeleteMovie Error", func(t *testing.T) {
+		movieRepository.On("MovieDetail",
+			mock.Anything,
+			mock.AnythingOfType("int")).Return(movieDomain, errors.New("Unexpected Error")).Once()
+		// movieRepository.On("DeleteMovie",
+		// 	mock.Anything,
+		// 	mock.AnythingOfType("int")).Return(movies.Movie{}, errors.New("Unexpected Error")).Once()
+		err := movieService.DeleteMovie(context.Background(), movieDomain.Id)
 
-	// 	assert.Error(t, err)
-	// 	// assert.Equal(t, movie, movies.Movie{})
+		assert.Error(t, err)
+		// assert.Equal(t, movie, movies.Movie{})
 
-	// 	// movieRepository.AssertExpectations(t)
-	// })
+		// movieRepository.AssertExpectations(t)
+	})
 }
 
 func TestCreateMovie(t *testing.T) {
@@ -205,6 +216,14 @@ func TestCreateMovie(t *testing.T) {
 		assert.Equal(t, movie, movies.Movie{})
 	})
 
+	t.Run("Test case 2 | Error Registry", func(t *testing.T) {
+
+		movie, err := movieService.CreateMovie(context.Background(), "")
+
+		assert.NotNil(t, err)
+		assert.Equal(t, movie, movies.Movie{})
+	})
+
 }
 
 func TestUpdateMovie(t *testing.T) {
@@ -234,7 +253,7 @@ func TestUpdateMovie(t *testing.T) {
 			mock.AnythingOfType("int")).Return(movieDomain, nil).Once()
 		movieRepository.On("UpdateMovie",
 			mock.Anything,
-			mock.AnythingOfType("movies.Movie")).Return(movies.Movie{}, errors.New("Unexpected Error")).Once()
+			mock.AnythingOfType("movies.Movie")).Return(errors.New("Unexpected Error")).Once()
 
 		err := movieService.UpdateMovie(context.Background(), movies.Movie{
 			Id:   1,
@@ -242,31 +261,29 @@ func TestUpdateMovie(t *testing.T) {
 		})
 
 		assert.Error(t, err)
-		// 	// assert.Equal(t, movie, movies.Movie{})
+		// assert.Equal(t, movie, movies.Movie{})
 
-		// 	movieRepository.AssertExpectations(t)
+		movieRepository.AssertExpectations(t)
 	})
 
-	// t.Run("Test case 3 |Detail Error", func(t *testing.T) {
-	// 	movieRepository.On("MovieDetail",
-	// 		mock.Anything,
-	// 		mock.AnythingOfType("int")).Return(movies.Movie{}, errors.New("Unexpected Error")).Once()
-	// 	movieRepository.On("UpdateMovie",
-	// 		mock.Anything,
-	// 		mock.AnythingOfType("movies.Movie")).Return(movieDomain, errors.New("Unexpected Error")).Once()
+	t.Run("Test case 3 |Detail Error", func(t *testing.T) {
+		movieRepository.On("MovieDetail",
+			mock.Anything,
+			mock.AnythingOfType("int")).Return(movies.Movie{}, errors.New("Unexpected Error")).Once()
+		// movieRepository.On("UpdateMovie",
+		// 	mock.Anything,
+		// 	mock.AnythingOfType("movies.Movie")).Return(movieDomain, errors.New("Unexpected Error")).Once()
 
-	// 	movie, err := movieService.UpdateMovie(context.Background(), movies.Movie{
-	// 		Id:       1,
-	// 		Name:     "ddd",
-	// 		Email:    "dd@dd.dd",
-	// 		Password: "ddd",
-	// 	})
+		err := movieService.UpdateMovie(context.Background(), movies.Movie{
+			Id:    1,
+			Title: "adada",
+		})
 
-	// 	assert.Error(t, err)
-	// 	assert.Equal(t, movie, movies.Movie{})
+		assert.Error(t, err)
+		// assert.Equal(t, movie, movies.Movie{})
 
-	// 	movieRepository.AssertExpectations(t)
-	// })
+		movieRepository.AssertExpectations(t)
+	})
 }
 func TestDeleteAll(t *testing.T) {
 	setup()
@@ -292,6 +309,19 @@ func TestDeleteAll(t *testing.T) {
 
 		err := movieService.DeleteAll(context.Background())
 
+		assert.Error(t, err)
+
+		// movieRepository.AssertExpectations(t)
+	})
+	t.Run("Test case 3 | Zero", func(t *testing.T) {
+		movieRepository.On("GetAllMovie",
+			mock.Anything).Return([]movies.Movie{}, nil).Once()
+		// movieRepository.On("DeleteAll",
+		// 	mock.Anything).Return(moviesDomain, errors.New(mock.Anything)).Once()
+
+		err := movieService.DeleteAll(context.Background())
+
+		assert.Len(t, []movies.Movie{}, 0)
 		assert.Error(t, err)
 
 		// movieRepository.AssertExpectations(t)
@@ -356,6 +386,19 @@ func TestFilterGenre(t *testing.T) {
 
 		// movieRepository.AssertExpectations(t)
 	})
+	// t.Run("Test case 3 | Zero", func(t *testing.T) {
+	// 	movieRepository.On("FilterGenre",
+	// 		mock.Anything,
+	// 		mock.AnythingOfType("string")).Return([]movies.Movie{}, errors.New(mock.Anything)).Once()
+
+	// 	Job, _ := movieService.FilterGenre(context.Background(), "cen")
+
+	// 	assert.Len(t, Job, 0)
+	// 	// assert.NoError(t, err)
+	// 	// assert.NotNil(t, Job)
+
+	// 	// movieRepository.AssertExpectations(t)
+	// })
 }
 
 func TestFilterOrder(t *testing.T) {

@@ -54,4 +54,15 @@ func TestGetAllGenre(t *testing.T) {
 
 		genreRepository.AssertExpectations(t)
 	})
+	t.Run("Test case 2 | Zero", func(t *testing.T) {
+		genreRepository.On("GetAllGenre",
+			mock.Anything).Return([]genres.Genre{}, nil).Once()
+
+		user, _ := genreService.GetAllGenre(context.Background())
+		assert.Len(t, user, 0)
+		// assert.NoError(t, err)
+		// assert.Equal(t, user, []genres.Genre{})
+
+		genreRepository.AssertExpectations(t)
+	})
 }

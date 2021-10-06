@@ -25,7 +25,7 @@ func setup() {
 		Id:      1,
 		Name:    "cen",
 		Expired: "1 hari",
-		Exp:     time.Time{},
+		Exp:     1,
 		Price:   1,
 	}
 	subscriptionDomain = append(subscriptionDomain, paymentDomain)
@@ -87,6 +87,19 @@ func TestGetAll(t *testing.T) {
 
 		paymentRepository.AssertExpectations(t)
 	})
+
+	t.Run("Test case 3| Zero", func(t *testing.T) {
+		paymentRepository.On("GetAll",
+			mock.Anything).Return([]subscription.SubcriptionPlan{}, nil).Once()
+
+		payment, _ := subscriptionervice.GetAll(context.Background())
+		assert.Len(t, payment, 0)
+		// assert.Error(t, err)
+		// assert.NotNil(t, payment)
+
+		// paymentRepository.AssertExpectations(t)
+	})
+
 }
 func TestDelete(t *testing.T) {
 	setup()
@@ -134,7 +147,7 @@ func TestCreatePlan(t *testing.T) {
 			// Id:      1,
 			Name:    "cen",
 			Expired: "1 hari",
-			Exp:     time.Now(),
+			Exp:     1,
 			Price:   1,
 		})
 
@@ -146,16 +159,16 @@ func TestCreatePlan(t *testing.T) {
 	// 	paymentRepository.On("CreatePlan",
 	// 		mock.Anything,
 	// 		mock.AnythingOfType("subscription.SubcriptionPlan")).Return(subscription.SubcriptionPlan{}, errors.New("Unexpected Error")).Once()
-	// 	payment, err := subscriptionervice.CreatePlan(context.Background(), subscription.SubcriptionPlan{
+	// 	_, err := subscriptionervice.CreatePlan(context.Background(), subscription.SubcriptionPlan{
 	// 		// Id:      1,
 	// 		Name:    "cen",
 	// 		Expired: "1 hari",
-	// 		Exp:     time.Time{},
-	// 		Price:   1,
+	// 		// Exp:     time.Time{},
+	// 		Price: 1,
 	// 	})
 
 	// 	assert.Error(t, err)
-	// 	assert.Equal(t, payment, subscription.SubcriptionPlan{})
+	// 	// assert.Equal(t, payment, subscription.SubcriptionPlan{})
 	// })
 
 	// t.Run("Test Case 3 | Invalid Name Empty", func(t *testing.T) {
@@ -189,7 +202,7 @@ func TestUpdate(t *testing.T) {
 			Id:      1,
 			Name:    "cen",
 			Expired: "1 hari",
-			Exp:     time.Time{},
+			Exp:     1,
 			Price:   1,
 		})
 
@@ -211,7 +224,7 @@ func TestUpdate(t *testing.T) {
 			Id:      1,
 			Name:    "cen",
 			Expired: "1 hari",
-			Exp:     time.Time{},
+			Exp:     1,
 			Price:   1,
 		})
 

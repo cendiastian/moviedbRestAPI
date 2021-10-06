@@ -6,6 +6,7 @@ import (
 	"project/app/middlewares"
 	resp "project/business"
 	"project/business/premium"
+	"project/business/subscription"
 
 	"time"
 )
@@ -14,17 +15,17 @@ type TransUsecase struct {
 	ConfigJWT middlewares.ConfigJWT
 	Repo      Repository
 	RepoPro   premium.Repository
-	// RepoSubs  subscription.Repository
+	RepoSubs  subscription.Repository
 
 	contextTimeout time.Duration
 }
 
-func NewTransUsecase(repo Repository, timeout time.Duration, repoPro premium.Repository /* repoSubs subscription.Repository*/) Usecase {
+func NewTransUsecase(repo Repository, timeout time.Duration, repoPro premium.Repository, repoSubs subscription.Repository) Usecase {
 	return &TransUsecase{
 		Repo:           repo,
 		contextTimeout: timeout,
 		RepoPro:        repoPro,
-		// RepoSubs:       repoSubs,
+		RepoSubs:       repoSubs,
 	}
 }
 
@@ -42,17 +43,19 @@ func (uc *TransUsecase) CreateTransaction(c context.Context, domain Transaction)
 	if err != nil {
 		return Transaction{}, resp.ErrInternalServer
 	}
-	// Sub, err := uc.RepoSubs.Detail(ctx, domain.Plan_Id)
-	// fmt.Println(Sub)
-	// if err != nil {
-	// 	return Transaction{}, resp.ErrNotFound
-	// }
+	Sub, err := uc.RepoSubs.Detail(ctx, domain.Plan_Id)
+	fmt.Println(Sub)
+	if err != nil {
+		return Transaction{}, resp.ErrNotFound
+	}
 
 	domain.UpdatedAt = time.Now()
+	t := time.Now()
+
 	pro := premium.Premium{
 		UserId:    domain.User_Id,
 		Type:      true,
-		Expired:   pay.Subscription_Plan.Exp,
+		Expired:   t.AddDate(0, 0, Sub.Exp),
 		UpdatedAt: domain.UpdatedAt,
 	}
 	_, err = uc.RepoPro.Save(ctx, pro)

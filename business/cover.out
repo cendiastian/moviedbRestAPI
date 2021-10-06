@@ -1,0 +1,7 @@
+mode: set
+project/business/genres/usecase.go:16.70,22.2 1 1
+project/business/genres/usecase.go:24.69,29.16 4 1
+project/business/genres/usecase.go:32.2,32.21 1 1
+project/business/genres/usecase.go:36.2,36.19 1 1
+project/business/genres/usecase.go:29.16,31.3 1 1
+project/business/genres/usecase.go:32.21,34.3 1 0

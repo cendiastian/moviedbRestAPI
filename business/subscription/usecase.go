@@ -97,7 +97,7 @@ func (uc *subsUseCase) Update(c context.Context, domain SubcriptionPlan) (err er
 
 func (uc *subsUseCase) CreatePlan(c context.Context, domain SubcriptionPlan) (SubcriptionPlan, error) {
 
-	if domain.Name == "" || domain.Expired == "" || domain.Exp.IsZero() || domain.Price == 0 {
+	if domain.Name == "" || domain.Expired == "" || domain.Exp == 0 || domain.Price == 0 {
 		return SubcriptionPlan{}, resp.ErrFillData
 	}
 	fmt.Println(domain.Exp)

@@ -9,7 +9,7 @@ type SubcriptionPlan struct {
 	Id      int
 	Name    string
 	Expired string
-	Exp     time.Time
+	Exp     int
 	Price   int
 	// Transaction []transactions.Transaction
 	CreatedAt time.Time
