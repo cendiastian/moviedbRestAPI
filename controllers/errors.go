@@ -19,7 +19,7 @@ func ErrorCode(err error) (code int) {
 	} else if err == errors.ErrNotFound {
 		code = http.StatusNoContent
 	} else if err == errors.ErrNotProFound {
-		code = http.StatusNoContent
+		code = http.StatusForbidden
 	} else if err == errors.ErrPayNotFound {
 		code = http.StatusNoContent
 	} else if err == errors.ErrSubsNotFound {
