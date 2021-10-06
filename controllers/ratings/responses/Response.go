@@ -8,11 +8,31 @@ import (
 
 type RatingResponse struct {
 	// MovieId int `json:"movie"`
-	// UserId    int       `json:"UserId"`
+	// UserId    int                `json:"UserId"`
 	User      _user.UserResponse `json:"user"`
 	Rate      float32            `json:"rating"`
 	CreatedAt time.Time          `json:"createdAt"`
 	UpdatedAt time.Time          `json:"updatedAt"`
+}
+
+type CreateResponse struct {
+	// MovieId int `json:"movie"`
+	UserId int `json:"UserId"`
+	// User      _user.UserResponse `json:"user"`
+	Rate      float32   `json:"rating"`
+	CreatedAt time.Time `json:"createdAt"`
+	UpdatedAt time.Time `json:"updatedAt"`
+}
+
+func CreateFromDomain(domain ratings.Ratings) CreateResponse {
+	return CreateResponse{
+		// MovieId: domain.MovieId,
+		UserId: domain.UserId,
+		// User:      _user.FromDomain(domain.User),
+		Rate:      domain.Rate,
+		CreatedAt: domain.CreatedAt,
+		UpdatedAt: domain.UpdatedAt,
+	}
 }
 
 func FromDomain(domain ratings.Ratings) RatingResponse {
