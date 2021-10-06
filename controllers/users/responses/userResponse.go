@@ -3,7 +3,6 @@ package responses
 import (
 	// "project/business/premium"
 	"project/business/users"
-	transactions "project/controllers/transactions/responses"
 	"time"
 )
 
@@ -12,8 +11,8 @@ type UserResponse struct {
 	Name  string `json:"name"`
 	Email string `json:"email"`
 	// Token       string                            `json:"token"`
-	Transaction []transactions.TransactionRespone `json:"transaction"`
-	Premium     ProResponse                       `json:"premium"`
+	// Transaction []transactions.TransactionRespone `json:"transaction"`
+	Premium ProResponse `json:"premium"`
 	// Ratings   []ratings.Ratings
 	CreatedAt time.Time `json:"createdAt"`
 	UpdatedAt time.Time `json:"updatedAt"`
@@ -21,13 +20,13 @@ type UserResponse struct {
 
 func FromDomain(domain users.User) UserResponse {
 	return UserResponse{
-		Id:          domain.Id,
-		Name:        domain.Name,
-		Email:       domain.Email,
-		Transaction: transactions.ToListDomain(domain.Transaction),
-		Premium:     FromDomainPro(domain.Premium),
-		CreatedAt:   domain.CreatedAt,
-		UpdatedAt:   domain.UpdatedAt,
+		Id:    domain.Id,
+		Name:  domain.Name,
+		Email: domain.Email,
+		// Transaction: transactions.ToListDomain(domain.Transaction),
+		Premium:   FromDomainPro(domain.Premium),
+		CreatedAt: domain.CreatedAt,
+		UpdatedAt: domain.UpdatedAt,
 	}
 }
 

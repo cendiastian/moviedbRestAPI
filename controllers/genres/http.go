@@ -1,7 +1,6 @@
 package genres
 
 import (
-	"net/http"
 	"project/business/genres"
 	"project/controllers"
 	"project/controllers/genres/responses"
@@ -24,7 +23,7 @@ func (GenreController GenreController) GetAllGenre(c echo.Context) error {
 	ctx := c.Request().Context()
 	Genre, err := GenreController.GenreUC.GetAllGenre(ctx)
 	if err != nil {
-		return controllers.NewErrorResponse(c, http.StatusInternalServerError, err)
+		return controllers.NewErrorResponse(c, controllers.ErrorCode(err), err)
 	}
 
 	return controllers.NewSuccesResponse(c, responses.ToListDomain(Genre))

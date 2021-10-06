@@ -1,7 +1,6 @@
 package users
 
 import (
-	"context"
 	"fmt"
 	"net/http"
 	"project/business/users"
@@ -34,7 +33,7 @@ func (userController UserController) Login(c echo.Context) error {
 	user, err := userController.UserUC.Login(ctx, userLogin.ToDomain())
 	fmt.Println(user.Token)
 	if err != nil {
-		return controllers.NewErrorResponse(c, http.StatusInternalServerError, err)
+		return controllers.NewErrorResponse(c, controllers.ErrorCode(err), err)
 	}
 	return controllers.NewSuccesResponse(c, responses.FromDomainLogin(user))
 }
@@ -44,13 +43,13 @@ func (UserController UserController) UserDetail(c echo.Context) error {
 
 	Id, err := strconv.Atoi(c.Param("Id"))
 	if err != nil {
-		return controllers.NewErrorResponse(c, http.StatusInternalServerError, err)
+		return controllers.NewErrorResponse(c, controllers.ErrorCode(err), err)
 	}
 
 	ctx := c.Request().Context()
 	user, err := UserController.UserUC.UserDetail(ctx, Id)
 	if err != nil {
-		return controllers.NewErrorResponse(c, http.StatusInternalServerError, err)
+		return controllers.NewErrorResponse(c, controllers.ErrorCode(err), err)
 	}
 
 	return controllers.NewSuccesResponse(c, responses.FromDomain(user))
@@ -61,7 +60,7 @@ func (UserController UserController) GetAll(c echo.Context) error {
 	ctx := c.Request().Context()
 	user, err := UserController.UserUC.GetAll(ctx)
 	if err != nil {
-		return controllers.NewErrorResponse(c, http.StatusInternalServerError, err)
+		return controllers.NewErrorResponse(c, controllers.ErrorCode(err), err)
 	}
 
 	return controllers.NewSuccesResponse(c, responses.ToListDomain(user))
@@ -69,13 +68,14 @@ func (UserController UserController) GetAll(c echo.Context) error {
 
 func (UserController UserController) Delete(c echo.Context) error {
 
-	userDelete := requests.UserDelete{}
-	c.Bind(&userDelete)
-
-	ctx := c.Request().Context()
-	err := UserController.UserUC.Delete(ctx, userDelete.ToDomain())
+	Id, err := strconv.Atoi(c.Param("Id"))
 	if err != nil {
-		return controllers.NewErrorResponse(c, http.StatusInternalServerError, err)
+		return controllers.NewErrorResponse(c, controllers.ErrorCode(err), err)
+	}
+	ctx := c.Request().Context()
+	_, err = UserController.UserUC.Delete(ctx, Id)
+	if err != nil {
+		return controllers.NewErrorResponse(c, controllers.ErrorCode(err), err)
 	}
 
 	return controllers.UpdateSuccesResponse(c, "Berhasil Menghapus User")
@@ -87,9 +87,10 @@ func (UserController UserController) Update(c echo.Context) error {
 	c.Bind(&userUpdate)
 
 	ctx := c.Request().Context()
-	err := UserController.UserUC.Update(ctx, userUpdate.ToDomain())
+	_, err := UserController.UserUC.Update(ctx, userUpdate.ToDomain())
 	if err != nil {
-		return controllers.NewErrorResponse(c, http.StatusInternalServerError, err)
+		// if err ==
+		return controllers.NewErrorResponse(c, controllers.ErrorCode(err), err)
 	}
 
 	return controllers.UpdateSuccesResponse(c, "Berhasil Merubah Data User")
@@ -103,17 +104,8 @@ func (UserController UserController) Register(c echo.Context) error {
 	ctx := c.Request().Context()
 	user, err := UserController.UserUC.Register(ctx, UserRegister.ToDomain())
 	if err != nil {
-		return controllers.NewErrorResponse(c, http.StatusInternalServerError, err)
+		return controllers.NewErrorResponse(c, http.StatusBadRequest, err)
 	}
 
 	return controllers.NewSuccesResponse(c, responses.FromDomain(user))
-}
-
-func (UserController UserController) UserRole(id int) string {
-	role := ""
-	user, err := UserController.UserUC.UserDetail(context.Background(), id)
-	if err == nil {
-		role = user.Name
-	}
-	return role
 }

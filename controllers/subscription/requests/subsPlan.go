@@ -2,7 +2,6 @@ package requests
 
 import (
 	"project/business/subscription"
-	"time"
 )
 
 type SubcriptionPlan struct {
@@ -14,11 +13,11 @@ type SubcriptionPlan struct {
 }
 
 func (subs *SubcriptionPlan) ToDomain() subscription.SubcriptionPlan {
-	t := time.Now()
+
 	return subscription.SubcriptionPlan{
 		Name:    subs.Name,
 		Expired: subs.Expired,
-		Exp:     t.AddDate(0, 0, subs.Exp),
+		Exp:     subs.Exp,
 		Price:   subs.Price,
 	}
 }

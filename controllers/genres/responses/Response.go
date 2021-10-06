@@ -14,8 +14,10 @@ type GenreResponse struct {
 
 func FromDomain(domain genres.Genre) GenreResponse {
 	return GenreResponse{
-		Id:   domain.Id,
-		Name: domain.Name,
+		Id:        domain.Id,
+		Name:      domain.Name,
+		CreatedAt: domain.CreatedAt,
+		UpdatedAt: domain.UpdatedAt,
 	}
 }
 

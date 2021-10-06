@@ -2,7 +2,6 @@ package movies
 
 import (
 	"fmt"
-	"net/http"
 	"project/business/movies"
 	"project/controllers"
 	"project/controllers/movies/requests"
@@ -28,7 +27,7 @@ func (MovieController MovieController) CreateMovie(c echo.Context) error {
 	fmt.Println(ImdbId)
 	movie, err := MovieController.MovieUC.CreateMovie(ctx, ImdbId)
 	if err != nil {
-		return controllers.NewErrorResponse(c, http.StatusInternalServerError, err)
+		return controllers.NewErrorResponse(c, controllers.ErrorCode(err), err)
 	}
 
 	return controllers.NewSuccesResponse(c, responses.FromDomainMovie(movie))
@@ -39,12 +38,12 @@ func (MovieController MovieController) MovieDetail(c echo.Context) error {
 
 	Id, err := strconv.Atoi(c.QueryParam("id"))
 	if err != nil {
-		return controllers.NewErrorResponse(c, http.StatusInternalServerError, err)
+		return controllers.NewErrorResponse(c, controllers.ErrorCode(err), err)
 	}
 	user, err := strconv.Atoi(c.QueryParam("user"))
 	fmt.Println(Id)
 	if err != nil {
-		return controllers.NewErrorResponse(c, http.StatusInternalServerError, err)
+		return controllers.NewErrorResponse(c, controllers.ErrorCode(err), err)
 	}
 
 	ctx := c.Request().Context()
@@ -52,7 +51,7 @@ func (MovieController MovieController) MovieDetail(c echo.Context) error {
 	// fmt.Println(movie)
 	if err != nil {
 		fmt.Println("error")
-		return controllers.NewErrorResponse(c, http.StatusInternalServerError, err)
+		return controllers.NewErrorResponse(c, controllers.ErrorCode(err), err)
 	}
 
 	return controllers.NewSuccesResponse(c, responses.FromDomainMovie(movie))
@@ -65,7 +64,7 @@ func (MovieController MovieController) SearchMovie(c echo.Context) error {
 	ctx := c.Request().Context()
 	movie, err := MovieController.MovieUC.SearchMovie(ctx, title)
 	if err != nil {
-		return controllers.NewErrorResponse(c, http.StatusInternalServerError, err)
+		return controllers.NewErrorResponse(c, controllers.ErrorCode(err), err)
 	}
 
 	return controllers.NewSuccesResponse(c, responses.ToListDomainSearch(movie))
@@ -79,7 +78,7 @@ func (MovieController MovieController) FilterOrder(c echo.Context) error {
 	ctx := c.Request().Context()
 	movie, err := MovieController.MovieUC.FilterOrder(ctx, Order)
 	if err != nil {
-		return controllers.NewErrorResponse(c, http.StatusInternalServerError, err)
+		return controllers.NewErrorResponse(c, controllers.ErrorCode(err), err)
 	}
 
 	return controllers.NewSuccesResponse(c, responses.ToListDomainSearch(movie))
@@ -92,7 +91,7 @@ func (MovieController MovieController) FilterGenre(c echo.Context) error {
 	ctx := c.Request().Context()
 	movie, err := MovieController.MovieUC.FilterGenre(ctx, Genre)
 	if err != nil {
-		return controllers.NewErrorResponse(c, http.StatusInternalServerError, err)
+		return controllers.NewErrorResponse(c, controllers.ErrorCode(err), err)
 	}
 
 	return controllers.NewSuccesResponse(c, responses.ToListDomainSearch(movie))
@@ -101,10 +100,10 @@ func (MovieController MovieController) FilterGenre(c echo.Context) error {
 func (MovieController MovieController) DeleteAll(c echo.Context) error {
 
 	ctx := c.Request().Context()
-	error := MovieController.MovieUC.DeleteAll(ctx)
+	err := MovieController.MovieUC.DeleteAll(ctx)
 
-	if error != nil {
-		return controllers.NewErrorResponse(c, http.StatusInternalServerError, error)
+	if err != nil {
+		return controllers.NewErrorResponse(c, controllers.ErrorCode(err), err)
 	}
 
 	return controllers.UpdateSuccesResponse(c, "Berhasil Menghapus semua Data Movie")
@@ -114,13 +113,13 @@ func (MovieController MovieController) DeleteMovie(c echo.Context) error {
 
 	Id, err := strconv.Atoi(c.Param("Id"))
 	if err != nil {
-		return controllers.NewErrorResponse(c, http.StatusInternalServerError, err)
+		return controllers.NewErrorResponse(c, controllers.ErrorCode(err), err)
 	}
 
 	ctx := c.Request().Context()
-	_, err = MovieController.MovieUC.DeleteMovie(ctx, Id)
+	err = MovieController.MovieUC.DeleteMovie(ctx, Id)
 	if err != nil {
-		return controllers.NewErrorResponse(c, http.StatusInternalServerError, err)
+		return controllers.NewErrorResponse(c, controllers.ErrorCode(err), err)
 	}
 
 	return controllers.UpdateSuccesResponse(c, "Berhasil Menghapus Data Movie")
@@ -131,7 +130,7 @@ func (MovieController MovieController) GetAllMovie(c echo.Context) error {
 	ctx := c.Request().Context()
 	movie, err := MovieController.MovieUC.GetAllMovie(ctx)
 	if err != nil {
-		return controllers.NewErrorResponse(c, http.StatusInternalServerError, err)
+		return controllers.NewErrorResponse(c, controllers.ErrorCode(err), err)
 	}
 
 	return controllers.NewSuccesResponse(c, responses.ToListDomainSearch(movie))
@@ -145,7 +144,7 @@ func (MovieController MovieController) UpdateMovie(c echo.Context) error {
 	ctx := c.Request().Context()
 	err := MovieController.MovieUC.UpdateMovie(ctx, Update.ToDomain())
 	if err != nil {
-		return controllers.NewErrorResponse(c, http.StatusInternalServerError, err)
+		return controllers.NewErrorResponse(c, controllers.ErrorCode(err), err)
 	}
 
 	return controllers.UpdateSuccesResponse(c, "Berhasil Merubah Data Movie")
@@ -163,7 +162,7 @@ func (MovieController MovieController) UpdateMovie(c echo.Context) error {
 	user, err := userController.UserUC.Login(ctx, userLogin.ToDomain())
 
 	if err != nil {
-		return controllers.NewErrorResponse(c, http.StatusInternalServerError, err)
+		return controllers.NewErrorResponse(c, controllers.ErrorCode(err), err)
 	}
 	return controllers.NewSuccesResponse(c, responses.FromDomain(user))
 }
@@ -173,13 +172,13 @@ func (UserController UserController) MovieDetail(c echo.Context) error {
 
 	Id, err := strconv.Atoi(c.Param("Id"))
 	if err != nil {
-		return controllers.NewErrorResponse(c, http.StatusInternalServerError, err)
+		return controllers.NewErrorResponse(c, controllers.ErrorCode(err), err)
 	}
 
 	ctx := c.Request().Context()
 	user, err := UserController.UserUC.UserDetail(ctx, Id)
 	if err != nil {
-		return controllers.NewErrorResponse(c, http.StatusInternalServerError, err)
+		return controllers.NewErrorResponse(c, controllers.ErrorCode(err), err)
 	}
 
 	return controllers.NewSuccesResponse(c, responses.FromDomain(user))
@@ -190,7 +189,7 @@ func (UserController UserController) GetAll(c echo.Context) error {
 	ctx := c.Request().Context()
 	user, err := UserController.UserUC.GetAll(ctx)
 	if err != nil {
-		return controllers.NewErrorResponse(c, http.StatusInternalServerError, err)
+		return controllers.NewErrorResponse(c, controllers.ErrorCode(err), err)
 	}
 
 	return controllers.NewSuccesResponse(c, responses.ToListDomain(user))
@@ -204,7 +203,7 @@ func (UserController UserController) Delete(c echo.Context) error {
 	ctx := c.Request().Context()
 	err := UserController.UserUC.Delete(ctx, userDelete.ToDomain())
 	if err != nil {
-		return controllers.NewErrorResponse(c, http.StatusInternalServerError, err)
+		return controllers.NewErrorResponse(c, controllers.ErrorCode(err), err)
 	}
 
 	return controllers.UpdateSuccesResponse(c, "Berhasil Menghapus User")
@@ -218,7 +217,7 @@ func (UserController UserController) Update(c echo.Context) error {
 	ctx := c.Request().Context()
 	err := UserController.UserUC.Update(ctx, userUpdate.ToDomain())
 	if err != nil {
-		return controllers.NewErrorResponse(c, http.StatusInternalServerError, err)
+		return controllers.NewErrorResponse(c, controllers.ErrorCode(err), err)
 	}
 
 	return controllers.UpdateSuccesResponse(c, "Berhasil Merubah Data User")
@@ -232,7 +231,7 @@ func (UserController UserController) Register(c echo.Context) error {
 	ctx := c.Request().Context()
 	user, err := UserController.UserUC.Register(ctx, UserRegister.ToDomain())
 	if err != nil {
-		return controllers.NewErrorResponse(c, http.StatusInternalServerError, err)
+		return controllers.NewErrorResponse(c, controllers.ErrorCode(err), err)
 	}
 	return controllers.NewSuccesResponse(c, responses.FromDomain(user))
 }

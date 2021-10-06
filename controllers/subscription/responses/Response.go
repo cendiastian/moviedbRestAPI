@@ -6,22 +6,22 @@ import (
 )
 
 type PlanResponse struct {
-	Id        int       `json:"id"`
-	Name      string    `json:"name"`
-	Expired   string    `json:"expired"`
-	Price     int       `json:"price"`
-	Exp       time.Time `json:"exp"`
+	Id      int    `json:"id"`
+	Name    string `json:"name"`
+	Expired string `json:"expired"`
+	Price   int    `json:"price"`
+	// Exp       int       `json:"exp"`
 	CreatedAt time.Time `json:"createdAt"`
 	UpdatedAt time.Time `json:"updatedAt"`
 }
 
 func FromDomain(domain subscription.SubcriptionPlan) PlanResponse {
 	return PlanResponse{
-		Id:        domain.Id,
-		Name:      domain.Name,
-		Expired:   domain.Expired,
-		Price:     domain.Price,
-		Exp:       domain.Exp,
+		Id:      domain.Id,
+		Name:    domain.Name,
+		Expired: domain.Expired,
+		Price:   domain.Price,
+		// Exp:       domain.Exp,
 		CreatedAt: domain.CreatedAt,
 		UpdatedAt: domain.UpdatedAt,
 	}

@@ -29,17 +29,17 @@ func (TransController TransController) CreateTransaction(c echo.Context) error {
 	ctx := c.Request().Context()
 	trans, err := TransController.TransUC.CreateTransaction(ctx, CreateTransaction.ToDomain())
 	if err != nil {
-		return controllers.NewErrorResponse(c, http.StatusInternalServerError, err)
+		return controllers.NewErrorResponse(c, controllers.ErrorCode(err), err)
 	}
 
-	return controllers.NewSuccesResponse(c, responses.FromDomainTransaction(trans))
+	return controllers.NewSuccesResponse(c, responses.CreateTransaction(trans))
 }
 func (TransController TransController) DetailTrans(c echo.Context) error {
 	// fmt.Println("UserDetail")
 
 	Id, err := strconv.Atoi(c.Param("Id"))
 	if err != nil {
-		return controllers.NewErrorResponse(c, http.StatusInternalServerError, err)
+		return controllers.NewErrorResponse(c, controllers.ErrorCode(err), err)
 	}
 
 	ctx := c.Request().Context()
