@@ -40,7 +40,7 @@ func (rep *MysqlUserRepository) GetAll(ctx context.Context) ([]users.User, error
 
 func (rep *MysqlUserRepository) UserDetail(ctx context.Context, id int) (users.User, error) {
 	var user Users
-	result := rep.Connect.Preload("Transaction").Preload("Premium").First(&user, "id= ?", id)
+	result := rep.Connect.Preload("Transaction.Payment_method").Preload("Transaction.Subscription_Plan").Preload("Premium").First(&user, "id= ?", id)
 	if result.Error != nil {
 		return users.User{}, result.Error
 	}
