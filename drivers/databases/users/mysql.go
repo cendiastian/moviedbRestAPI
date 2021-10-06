@@ -4,7 +4,6 @@ import (
 	"context"
 	"fmt"
 	"project/business/users"
-	"project/helpers/encrypt"
 
 	"gorm.io/gorm"
 )
@@ -72,12 +71,12 @@ func (rep *MysqlUserRepository) Update(ctx context.Context, domain users.User) (
 func (rep *MysqlUserRepository) Register(ctx context.Context, domain users.User) (users.User, error) {
 	user := FromDomain(domain)
 
-	hashedPassword, err := encrypt.Hash(domain.Password)
-	if err != nil {
-		return users.User{}, err
-	}
+	// hashedPassword, err := encrypt.Hash(domain.Password)
+	// if err != nil {
+	// 	return users.User{}, err
+	// }
 
-	user.Password = hashedPassword
+	// user.Password = hashedPassword
 
 	result := rep.Connect.Create(&user)
 
