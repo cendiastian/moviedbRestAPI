@@ -4,7 +4,6 @@ import (
 	"context"
 	"fmt"
 	"project/business/users"
-	"project/helpers/encrypt"
 
 	"gorm.io/gorm"
 )
@@ -40,7 +39,7 @@ func (rep *MysqlUserRepository) GetAll(ctx context.Context) ([]users.User, error
 
 func (rep *MysqlUserRepository) UserDetail(ctx context.Context, id int) (users.User, error) {
 	var user Users
-	result := rep.Connect.Preload("Transaction").Preload("Premium").First(&user, "id= ?", id)
+	result := rep.Connect.Preload("Transaction.Payment_method").Preload("Transaction.Subscription_Plan").Preload("Premium").First(&user, "id= ?", id)
 	if result.Error != nil {
 		return users.User{}, result.Error
 	}
@@ -72,12 +71,12 @@ func (rep *MysqlUserRepository) Update(ctx context.Context, domain users.User) (
 func (rep *MysqlUserRepository) Register(ctx context.Context, domain users.User) (users.User, error) {
 	user := FromDomain(domain)
 
-	hashedPassword, err := encrypt.Hash(domain.Password)
-	if err != nil {
-		return users.User{}, err
-	}
+	// hashedPassword, err := encrypt.Hash(domain.Password)
+	// if err != nil {
+	// 	return users.User{}, err
+	// }
 
-	user.Password = hashedPassword
+	// user.Password = hashedPassword
 
 	result := rep.Connect.Create(&user)
 

@@ -75,7 +75,7 @@ func (RatingController RatingController) Create(c echo.Context) error {
 		return controllers.NewErrorResponse(c, controllers.ErrorCode(err), err)
 	}
 
-	return controllers.NewSuccesResponse(c, responses.FromDomain(rate))
+	return controllers.NewSuccesResponse(c, responses.CreateFromDomain(rate))
 }
 func (RatingController RatingController) Detail(c echo.Context) error {
 	// fmt.Println("UserDetail")
