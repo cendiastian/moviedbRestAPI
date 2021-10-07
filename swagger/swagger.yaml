@@ -1,0 +1,1007 @@
+swagger: '2.0'
+info:
+  version: 1.0.0
+  title: WatchaMovie
+  description: |
+    WatchaMovie API is app to see a movies with details
+  termsOfService: http://swagger.io/terms/
+  contact:
+    email: cendiastian@gmail.com
+  license:
+    name: Apache 2.0
+    url: http://www.apache.org/licenses/LICENSE-2.0.html
+
+# host: 3.129.64.53:8080
+# basePath: /
+securityDefinitions: {}
+# schemes:
+# - http
+consumes:
+- application/json
+produces:
+- application/json
+paths:
+  /users:
+    get:
+      summary: GetAll
+      tags:
+      - User
+      operationId: GetAll
+      deprecated: false
+      produces:
+      - application/json
+      parameters:
+      - name: Authorization
+        in: header
+        required: false
+        default: Bearer {token}
+        type: string
+      responses:
+        '200':
+          description: ''
+          headers: {}
+  /users/register:
+    post:
+      summary: Register
+      tags:
+      - User
+      operationId: Register
+      deprecated: false
+      produces:
+      - application/json
+      parameters:
+      - name: Authorization
+        in: header
+        required: false
+        default: Bearer {token}
+        type: string
+      - name: Body
+        in: body
+        required: true
+        description: ''
+        schema:
+          $ref: '#/definitions/RegisterRequest'
+      responses:
+        '200':
+          description: ''
+          headers: {}
+  /users/login:
+    post:
+      summary: Login
+      tags:
+      - User
+      operationId: Login
+      deprecated: false
+      produces:
+      - application/json
+      parameters:
+      - name: Authorization
+        in: header
+        required: false
+        default: Bearer {token}
+        type: string
+      - name: Body
+        in: body
+        required: true
+        description: ''
+        schema:
+          $ref: '#/definitions/LoginRequest'
+      responses:
+        '200':
+          description: ''
+          headers: {}
+  /users/{Id}:
+    get:
+      summary: UserDetail
+      tags:
+      - User
+      operationId: UserDetail
+      deprecated: false
+      produces:
+      - application/json
+      parameters:
+      - name: Authorization
+        in: header
+        required: false
+        default: Bearer {token}
+        type: string
+      - name: Id
+        in: path
+        required: true
+        type: integer
+        format: int32
+        description: ''
+      responses:
+        '200':
+          description: ''
+          headers: {}
+    delete:
+      summary: Delete
+      tags:
+      - User
+      operationId: Delete
+      deprecated: false
+      produces:
+      - application/json
+      parameters:
+      - name: Authorization
+        in: header
+        required: false
+        default: Bearer {token}
+        type: string
+      - name: Id
+        in: path
+        required: true
+        type: integer
+        format: int32
+        description: ''
+      responses:
+        '200':
+          description: ''
+          headers: {}
+  /users/update:
+    put:
+      summary: Update
+      tags:
+      - User
+      operationId: Update
+      deprecated: false
+      produces:
+      - application/json
+      parameters:
+      - name: Authorization
+        in: header
+        required: false
+        default: Bearer {token}
+        type: string
+      - name: Body
+        in: body
+        required: true
+        description: ''
+        schema:
+          $ref: '#/definitions/UpdateRequest'
+      responses:
+        '200':
+          description: ''
+          headers: {}
+  /subs/Create:
+    post:
+      summary: Create
+      tags:
+      - Subscription
+      operationId: Create
+      deprecated: false
+      produces:
+      - application/json
+      parameters:
+      - name: Authorization
+        in: header
+        required: false
+        default: Bearer {token}
+        type: string
+      - name: Body
+        in: body
+        required: true
+        description: ''
+        schema:
+          $ref: '#/definitions/CreateRequest'
+      responses:
+        '200':
+          description: ''
+          headers: {}
+  /subs/Detail/{Id}:
+    get:
+      summary: GetByID
+      tags:
+      - Subscription
+      operationId: GetByID
+      deprecated: false
+      produces:
+      - application/json
+      parameters:
+      - name: Authorization
+        in: header
+        required: false
+        default: Bearer {token}
+        type: string
+      - name: Id
+        in: path
+        required: true
+        type: integer
+        format: int32
+        description: ''
+      responses:
+        '200':
+          description: ''
+          headers: {}
+  /subs/delete/{Id}:
+    delete:
+      summary: Delete
+      tags:
+      - Subscription
+      operationId: Delete1
+      deprecated: false
+      produces:
+      - application/json
+      parameters:
+      - name: Authorization
+        in: header
+        required: false
+        default: Bearer {token}
+        type: string
+      - name: Id
+        in: path
+        required: true
+        type: integer
+        format: int32
+        description: ''
+      responses:
+        '200':
+          description: ''
+          headers: {}
+  /subs/update:
+    put:
+      summary: Update
+      tags:
+      - Subscription
+      operationId: PutUpdate
+      deprecated: false
+      produces:
+      - application/json
+      parameters:
+      - name: Authorization
+        in: header
+        required: false
+        default: Bearer {token}
+        type: string
+      - name: Body
+        in: body
+        required: true
+        description: ''
+        schema:
+          $ref: '#/definitions/UpdateRequest1'
+      responses:
+        '200':
+          description: ''
+          headers: {}
+  /subs/all:
+    get:
+      summary: GetAll
+      tags:
+      - Subscription
+      operationId: GetAll1
+      deprecated: false
+      produces:
+      - application/json
+      parameters:
+      - name: Authorization
+        in: header
+        required: false
+        default: Bearer {token}
+        type: string
+      responses:
+        '200':
+          description: ''
+          headers: {}
+  /pay/Create:
+    post:
+      summary: Create
+      tags:
+      - Payment Method
+      operationId: PostCreate
+      deprecated: false
+      produces:
+      - application/json
+      parameters:
+      - name: Authorization
+        in: header
+        required: false
+        default: Bearer {token}
+        type: string
+      - name: Body
+        in: body
+        required: true
+        description: ''
+        schema:
+          $ref: '#/definitions/CreateRequest1'
+      responses:
+        '200':
+          description: ''
+          headers: {}
+  /pay/Detail/{Id}:
+    get:
+      summary: GetByID
+      tags:
+      - Payment Method
+      operationId: GetByID1
+      deprecated: false
+      produces:
+      - application/json
+      parameters:
+      - name: Authorization
+        in: header
+        required: false
+        default: Bearer {token}
+        type: string
+      - name: Id
+        in: path
+        required: true
+        type: integer
+        format: int32
+        description: ''
+      responses:
+        '200':
+          description: ''
+          headers: {}
+  /pay/delete/{Id}:
+    delete:
+      summary: Delete
+      tags:
+      - Payment Method
+      operationId: Delete12
+      deprecated: false
+      produces:
+      - application/json
+      parameters:
+      - name: Authorization
+        in: header
+        required: false
+        default: Bearer {token}
+        type: string
+      - name: Id
+        in: path
+        required: true
+        type: integer
+        format: int32
+        description: ''
+      responses:
+        '200':
+          description: ''
+          headers: {}
+  /pay/update:
+    put:
+      summary: Update
+      tags:
+      - Payment Method
+      operationId: PutUpdate1
+      deprecated: false
+      produces:
+      - application/json
+      parameters:
+      - name: Authorization
+        in: header
+        required: false
+        default: Bearer {token}
+        type: string
+      - name: Body
+        in: body
+        required: true
+        description: ''
+        schema:
+          $ref: '#/definitions/UpdateRequest2'
+      responses:
+        '200':
+          description: ''
+          headers: {}
+  /pay/all:
+    get:
+      summary: GetAll
+      tags:
+      - Payment Method
+      operationId: GetAll12
+      deprecated: false
+      produces:
+      - application/json
+      parameters:
+      - name: Authorization
+        in: header
+        required: false
+        default: Bearer {token}
+        type: string
+      responses:
+        '200':
+          description: ''
+          headers: {}
+  /transaction/Create:
+    post:
+      summary: CreateTransaction
+      tags:
+      - Transaction
+      operationId: CreateTransaction
+      deprecated: false
+      produces:
+      - application/json
+      parameters:
+      - name: Authorization
+        in: header
+        required: false
+        default: Bearer {token}
+        type: string
+      - name: Body
+        in: body
+        required: true
+        description: ''
+        schema:
+          $ref: '#/definitions/CreateTransactionRequest'
+      responses:
+        '200':
+          description: ''
+          headers: {}
+  /transaction/Detail/{Id}:
+    get:
+      summary: DetailTrans
+      tags:
+      - Transaction
+      operationId: DetailTrans
+      deprecated: false
+      produces:
+      - application/json
+      parameters:
+      - name: Authorization
+        in: header
+        required: false
+        default: Bearer {token}
+        type: string
+      - name: Id
+        in: path
+        required: true
+        type: integer
+        format: int32
+        description: ''
+      responses:
+        '200':
+          description: ''
+          headers: {}
+  /rate/Create:
+    post:
+      summary: Create
+      tags:
+      - Rating
+      operationId: PostCreate1
+      deprecated: false
+      produces:
+      - application/json
+      parameters:
+      - name: Authorization
+        in: header
+        required: false
+        default: Bearer {token}
+        type: string
+      - name: Body
+        in: body
+        required: true
+        description: ''
+        schema:
+          $ref: '#/definitions/CreateRequest2'
+      responses:
+        '200':
+          description: ''
+          headers: {}
+  /rate/detail:
+    get:
+      summary: GetByID
+      tags:
+      - Rating
+      operationId: GetByID12
+      deprecated: false
+      produces:
+      - application/json
+      parameters:
+      - name: Authorization
+        in: header
+        required: false
+        default: Bearer {token}
+        type: string
+      responses:
+        '200':
+          description: ''
+          headers: {}
+  /rate/delete:
+    delete:
+      summary: Delete
+      tags:
+      - Rating
+      operationId: Delete123
+      deprecated: false
+      produces:
+      - application/json
+      parameters:
+      - name: Authorization
+        in: header
+        required: false
+        default: Bearer {token}
+        type: string
+      - name: Body
+        in: body
+        required: true
+        description: ''
+        schema:
+          $ref: '#/definitions/DeleteRequest'
+      responses:
+        '200':
+          description: ''
+          headers: {}
+  /rate/update:
+    put:
+      summary: Update
+      tags:
+      - Rating
+      operationId: PutUpdate12
+      deprecated: false
+      produces:
+      - application/json
+      parameters:
+      - name: Authorization
+        in: header
+        required: false
+        default: Bearer {token}
+        type: string
+      - name: Body
+        in: body
+        required: true
+        description: ''
+        schema:
+          $ref: '#/definitions/UpdateRequest3'
+      responses:
+        '200':
+          description: ''
+          headers: {}
+  /movies/CreateMovie/{ImdbId}:
+    post:
+      summary: CreateMovieAPI
+      tags:
+      - Movie
+      operationId: CreateMovieAPI
+      deprecated: false
+      produces:
+      - application/json
+      parameters:
+      - name: Authorization
+        in: header
+        required: false
+        default: Bearer {token}
+        type: string
+      - name: ImdbId
+        in: path
+        required: true
+        type: string
+        description: ''
+      responses:
+        '200':
+          description: ''
+          headers: {}
+  /movies/detail:
+    get:
+      summary: GetMovieByID
+      tags:
+      - Movie
+      operationId: GetMovieByID
+      deprecated: false
+      produces:
+      - application/json
+      parameters:
+      - name: Authorization
+        in: header
+        required: false
+        default: Bearer {token}
+        type: string
+      - name: id
+        in: query
+        required: true
+        type: integer
+        format: int32
+        description: ''
+      - name: user
+        in: query
+        required: true
+        type: integer
+        format: int32
+        description: ''
+      responses:
+        '200':
+          description: ''
+          headers: {}
+  /movies/search:
+    get:
+      summary: SearchMovie
+      tags:
+      - Movie
+      operationId: SearchMovie
+      deprecated: false
+      produces:
+      - application/json
+      parameters:
+      - name: Authorization
+        in: header
+        required: false
+        default: Bearer {token}
+        type: string
+      - name: title
+        in: query
+        required: true
+        type: string
+        description: ''
+      responses:
+        '200':
+          description: ''
+          headers: {}
+  /movies/genre:
+    get:
+      summary: FilterGenre
+      tags:
+      - Movie
+      operationId: FilterGenre
+      deprecated: false
+      produces:
+      - application/json
+      parameters:
+      - name: Authorization
+        in: header
+        required: false
+        default: Bearer {token}
+        type: string
+      - name: Genre
+        in: query
+        required: true
+        type: string
+        description: ''
+      responses:
+        '200':
+          description: ''
+          headers: {}
+  /movies/order:
+    get:
+      summary: FilterOrder
+      tags:
+      - Movie
+      operationId: FilterOrder
+      deprecated: false
+      produces:
+      - application/json
+      parameters:
+      - name: Authorization
+        in: header
+        required: false
+        default: Bearer {token}
+        type: string
+      - name: Order
+        in: query
+        required: true
+        type: string
+        description: ''
+      responses:
+        '200':
+          description: ''
+          headers: {}
+  /movies/delete/{Id}:
+    delete:
+      summary: Delete
+      tags:
+      - Movie
+      operationId: Delete1234
+      deprecated: false
+      produces:
+      - application/json
+      parameters:
+      - name: Authorization
+        in: header
+        required: false
+        default: Bearer {token}
+        type: string
+      - name: Id
+        in: path
+        required: true
+        type: integer
+        format: int32
+        description: ''
+      responses:
+        '200':
+          description: ''
+          headers: {}
+  /movies/deleteAll:
+    delete:
+      summary: DeleteAll
+      tags:
+      - Movie
+      operationId: DeleteAll
+      deprecated: false
+      produces:
+      - application/json
+      parameters:
+      - name: Authorization
+        in: header
+        required: false
+        default: Bearer {token}
+        type: string
+      responses:
+        '200':
+          description: ''
+          headers: {}
+  /movies/update:
+    put:
+      summary: Update
+      tags:
+      - Movie
+      operationId: PutUpdate123
+      deprecated: false
+      produces:
+      - application/json
+      parameters:
+      - name: Authorization
+        in: header
+        required: false
+        default: Bearer {token}
+        type: string
+      - name: Body
+        in: body
+        required: true
+        description: ''
+        schema:
+          $ref: '#/definitions/UpdateRequest4'
+      responses:
+        '200':
+          description: ''
+          headers: {}
+  /movies:
+    get:
+      summary: GetAll
+      tags:
+      - Movie
+      operationId: GetAll123
+      deprecated: false
+      produces:
+      - application/json
+      parameters:
+      - name: Authorization
+        in: header
+        required: false
+        default: Bearer {token}
+        type: string
+      responses:
+        '200':
+          description: ''
+          headers: {}
+  /genre/all:
+    get:
+      summary: AllGenre
+      tags:
+      - Genre
+      operationId: AllGenre
+      deprecated: false
+      produces:
+      - application/json
+      parameters:
+      - name: Authorization
+        in: header
+        required: false
+        default: Bearer {token}
+        type: string
+      responses:
+        '200':
+          description: ''
+          headers: {}
+definitions:
+  RegisterRequest:
+    title: RegisterRequest
+    example:
+      name: cendiastian
+      email: cendi@mail.com
+      password: '12345'
+    type: object
+    properties:
+      name:
+        type: string
+      email:
+        type: string
+      password:
+        type: string
+    required:
+    - name
+    - email
+    - password
+  LoginRequest:
+    title: LoginRequest
+    example:
+      email: cendi@mail.com
+      password: '12345'
+    type: object
+    properties:
+      email:
+        type: string
+      password:
+        type: string
+    required:
+    - email
+    - password
+  UpdateRequest:
+    title: UpdateRequest
+    example:
+      id: 8
+      email: test123@mail.com
+    type: object
+    properties:
+      id:
+        type: integer
+        format: int32
+      email:
+        type: string
+    required:
+    - id
+    - email
+  CreateRequest:
+    title: CreateRequest
+    example:
+      Name: Paket 3 Hari
+      Expired: 3 hari
+      Exp: 3
+      Price: 30000
+    type: object
+    properties:
+      Name:
+        type: string
+      Expired:
+        type: string
+      Exp:
+        type: integer
+        format: int32
+      Price:
+        type: integer
+        format: int32
+    required:
+    - Name
+    - Expired
+    - Exp
+    - Price
+  UpdateRequest1:
+    title: UpdateRequest1
+    example:
+      id: 3
+      name: test
+    type: object
+    properties:
+      id:
+        type: integer
+        format: int32
+      name:
+        type: string
+    required:
+    - id
+    - name
+  CreateRequest1:
+    title: CreateRequest1
+    example:
+      Name: Ovo
+      status: 1
+    type: object
+    properties:
+      Name:
+        type: string
+      status:
+        type: integer
+        format: int32
+    required:
+    - Name
+    - status
+  UpdateRequest2:
+    title: UpdateRequest2
+    example:
+      Id: 3
+      Name: test
+    type: object
+    properties:
+      Id:
+        type: integer
+        format: int32
+      Name:
+        type: string
+    required:
+    - Id
+    - Name
+  CreateTransactionRequest:
+    title: CreateTransactionRequest
+    example:
+      Payment_method_id: 1
+      User_Id: 8
+      Plan_Id: 3
+    type: object
+    properties:
+      Payment_method_id:
+        type: integer
+        format: int32
+      User_Id:
+        type: integer
+        format: int32
+      Plan_Id:
+        type: integer
+        format: int32
+    required:
+    - Payment_method_id
+    - User_Id
+    - Plan_Id
+  CreateRequest2:
+    title: CreateRequest2
+    example:
+      MovieId: 1
+      UserId: 8
+      Rate: 3
+    type: object
+    properties:
+      MovieId:
+        type: integer
+        format: int32
+      UserId:
+        type: integer
+        format: int32
+      Rate:
+        type: integer
+        format: int32
+    required:
+    - MovieId
+    - UserId
+    - Rate
+  DeleteRequest:
+    title: DeleteRequest
+    example:
+      MovieId: 1
+      UserId: 8
+    type: object
+    properties:
+      MovieId:
+        type: integer
+        format: int32
+      UserId:
+        type: integer
+        format: int32
+    required:
+    - MovieId
+    - UserId
+  UpdateRequest3:
+    title: UpdateRequest3
+    example:
+      MovieId: 1
+      UserId: 8
+      Rate: 5
+    type: object
+    properties:
+      MovieId:
+        type: integer
+        format: int32
+      UserId:
+        type: integer
+        format: int32
+      Rate:
+        type: integer
+        format: int32
+    required:
+    - MovieId
+    - UserId
+    - Rate
+  UpdateRequest4:
+    title: UpdateRequest4
+    example:
+      Id: 3
+      Type: test
+    type: object
+    properties:
+      Id:
+        type: integer
+        format: int32
+      Type:
+        type: string
+    required:
+    - Id
+    - Type
+tags:
+- name: User
+- name: Subscription
+- name: Payment Method
+- name: Transaction
+- name: Rating
+- name: Movie
+- name: Genre
+# Added by API Auto Mocking Plugin
+host: virtserver.swaggerhub.com
+basePath: /cendiastian/WatchaMovie/1.0.0
+schemes:
+ - https
+ - http
