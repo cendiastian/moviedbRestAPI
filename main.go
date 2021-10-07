@@ -45,7 +45,7 @@ import (
 	_proRepo "project/drivers/databases/premium"
 	_prodb "project/drivers/databases/premium"
 
-	// _mongodbDriver "project/drivers/mongodb"
+	_mongodbDriver "project/drivers/mongodb"
 	_mysqlDriver "project/drivers/mysql"
 
 	// _omdb "project/thirdparty/omdb"
@@ -94,10 +94,13 @@ func main() {
 		DB_Port:     viper.GetString(`database.port`),
 		DB_Database: viper.GetString(`database.name`),
 	}
-	// mongoConfig := _mongodbDriver.ConfigDb{
-	// 	DbHost: viper.GetString(`mongodb.host`),
-	// 	DbPort: viper.GetString(`mongodb.port`),
-	// }
+	mongoConfig := _mongodbDriver.ConfigDb{
+		// DbHost:    viper.GetString(`mongodb.host`),
+		DbPort:    viper.GetString(`mongodb.port`),
+		DbUser:    viper.GetString(`mongodb.username`),
+		DbPass:    viper.GetString(`mongodb.password`),
+		DbCluster: viper.GetString(`mongodb.cluster`),
+	}
 
 	configJWT := _middleware.ConfigJWT{
 		SecretJWT:       viper.GetString(`jwt.secret`),
@@ -114,16 +117,16 @@ func main() {
 
 	Connect := configDB.InitialDB()
 
-	// LogCol := _middleware.InitialCollection(struct {
-	// 	DbName     string
-	// 	Collection string
-	// }{
-	// 	DbName:     viper.GetString(`mongodb.dbname`),
-	// 	Collection: viper.GetString(`mongodb.collection`),
-	// })
+	LogCol := _middleware.InitialCollection(struct {
+		DbName     string
+		Collection string
+	}{
+		DbName:     viper.GetString(`mongodb.dbname`),
+		Collection: viper.GetString(`mongodb.collection`),
+	})
 
-	// InitMongo := mongoConfig.InitialDb()
-	// LoggerMiddleware := _middleware.InitialConfig(InitMongo, LogCol)
+	InitMongo := mongoConfig.InitialDb()
+	LoggerMiddleware := _middleware.InitialConfig(InitMongo, LogCol)
 
 	DB_Migrate(Connect)
 
@@ -169,8 +172,8 @@ func main() {
 		PaymentController:     *payCtrl,
 		RatingController:      *rateCtrl,
 		GenreController:       *GenreCtrl,
-		// LoggerMiddleware:      *LoggerMiddleware,
-		JwtConfig: configJWT.Init(),
+		LoggerMiddleware:      *LoggerMiddleware,
+		JwtConfig:             configJWT.Init(),
 	}
 
 	routesInit.RouteRegister(e)

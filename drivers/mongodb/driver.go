@@ -11,14 +11,18 @@ import (
 )
 
 type ConfigDb struct {
-	DbHost string
-	DbPort string
+	DbPort    string
+	DbCluster string
+	DbUser    string
+	DbPass    string
 }
 
 func (config *ConfigDb) InitialDb() *mongo.Client {
-	uri := fmt.Sprintf("mongodb://%v:%v",
-		config.DbHost,
-		config.DbPort,
+	fmt.Println(config.DbCluster + config.DbUser + config.DbPass)
+	uri := fmt.Sprintf("mongodb+srv://%v:%v%v",
+		config.DbUser,
+		config.DbPass,
+		config.DbCluster,
 	)
 	clientOptions := options.Client().ApplyURI(uri)
 	client, err := mongo.NewClient(clientOptions)
@@ -29,14 +33,14 @@ func (config *ConfigDb) InitialDb() *mongo.Client {
 	if err != nil {
 		panic(err)
 	}
-	ctx, cancel := context.WithTimeout(context.Background(), 2*time.Second)
+	ctx, cancel := context.WithTimeout(context.Background(), 15*time.Second)
 	defer cancel()
 	err = client.Ping(ctx, nil)
 	if err != nil {
 		log.Fatal(err)
 	}
 
-	fmt.Println("Connected to MongoDB!")
+	fmt.Println("MongoDB Connected")
 
 	return client
 }
