@@ -40,7 +40,7 @@ func (rep *MysqlMovieRepository) MovieDetail(ctx context.Context, id int) (movie
 	// }
 	var total float32
 
-	result := rep.Connect.Preload("Genre").Preload("Ratings.User").First(&movie, "id= ?", id)
+	result := rep.Connect.Preload("Genre").Preload("Ratings.User.Premium").First(&movie, "id= ?", id)
 	if result.Error != nil {
 		fmt.Println("DB")
 		return movies.Movie{}, result.Error
