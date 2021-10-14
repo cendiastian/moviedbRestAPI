@@ -27,5 +27,5 @@ This project implements Clean Architecture. The four layers on the project are:
   * Controller Layer
 
 ## Documentation
-[Swagger]{https://app.swaggerhub.com/apis/cendiastian/WatchaMovie/1.0.0}
-[ERD]{https://drive.google.com/file/d/1SOA0obwfwpkLZ4vKznyTmeJzG5S_oRSw/view?usp=sharing}
+[Swagger](https://app.swaggerhub.com/apis/cendiastian/WatchaMovie/1.0.0)
+[ERD](https://drive.google.com/file/d/1SOA0obwfwpkLZ4vKznyTmeJzG5S_oRSw/view?usp=sharing)
