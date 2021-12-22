@@ -1,4 +1,4 @@
-# WatchaMovie
+# aMovie Restful API
 ## Description
 WatchaMovie Project is a database for movies with details that you can access and has several other features, A Restful API Project that made for Final Project of Backend Engineer, the owner participates in a Studi Independen, Fullstack Engineer by Alterra Academy, one of the programs created by the Kampus Merdeka and starts in August 2021.
 ## Technology Used
