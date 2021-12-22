@@ -1,7 +1,7 @@
 swagger: '2.0'
 info:
   version: 1.0.0
-  title: WatchaMovie
+  title: aMovie
   description: |
     WatchaMovie API is app to see a movies with details
   termsOfService: http://swagger.io/terms/
